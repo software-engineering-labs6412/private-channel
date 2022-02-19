@@ -19,6 +19,6 @@
 ```
 4) Open `installation` folder and run cmd;
 5) In console run next command: `java -jar db_installation-1.0.jar -settingsFile=<file_path>` 
-**NOTE**: java version must be **15 and above**
+**NOTE**: java version must be **15 and above**. **Tool repo**: https://github.com/software-engineering-labs6412/db_installation;
 6) Please wait for the container to set up;
-7) Now you have pg database instance with IP = `127.0.0.1:<specified port>`
+7) Now you have pg databases server with IP = `127.0.0.1:<specified port>`
