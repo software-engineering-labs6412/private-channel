@@ -1,4 +1,4 @@
-package config;
+package org.ssau.privatechannel.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -23,4 +23,7 @@ public class DataSourceConfig {
         dataSourceBuilder.password(password);
         return dataSourceBuilder.build();
     }
+
+
+
 }
