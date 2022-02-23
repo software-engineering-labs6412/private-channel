@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.Date;
@@ -14,6 +15,8 @@ import java.util.Set;
 
 @Entity
 @Table(name = "schedule")
+@NamedQuery(name = "Schedule.findAllWithTimeFrames",
+        query = "select distinct s from Schedule s left join fetch s.timeFrames")
 public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

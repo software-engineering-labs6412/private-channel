@@ -8,11 +8,14 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import java.util.Date;
 
 @Entity
 @Table(name = "time_frame")
+@NamedQuery(name = "TimeFrame.findAllWithSchedule",
+        query = "select distinct t from TimeFrame t left join fetch t.schedule")
 public class TimeFrame {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
