@@ -1,10 +1,12 @@
 package org.ssau.privatechannel.repository;
 
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.ssau.privatechannel.model.TimeFrame;
 
 import java.util.Collection;
 
+@Repository
 public class TimeFrameRepository extends AbstractRepository {
 
     Collection<TimeFrame> findAll() {
@@ -12,17 +14,17 @@ public class TimeFrameRepository extends AbstractRepository {
     }
 
     @Transactional
-    void add(TimeFrame timeFrame) {
+    public void add(TimeFrame timeFrame) {
         entityManager.persist(timeFrame);
     }
 
     @Transactional
-    void delete(TimeFrame timeFrame) {
+    public void delete(TimeFrame timeFrame) {
         entityManager.remove(timeFrame);
     }
 
     @Transactional
-    void edit(TimeFrame timeFrame) {
+    public void edit(TimeFrame timeFrame) {
         entityManager.persist(timeFrame);
     }
 

@@ -6,27 +6,35 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import java.util.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "time_frame")
 @NamedQuery(name = "TimeFrame.findAllWithSchedule",
         query = "select distinct t from TimeFrame t left join fetch t.schedule")
 public class TimeFrame {
+
+    private static class Columns{
+        public static final String TIME_FRAME_ID = "time_frame_id";
+        public static final String START_TIME = "start_time";
+        public static final String END_TIME = "end_time";
+        public static final String SCHEDULE_ID = "schedule_id";
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "time_frame_id", nullable = false)
+    @Column(name = Columns.TIME_FRAME_ID, nullable = false)
     private Long id;
 
-    @Column(name = "start_time")
-    private Date startTime;
+    @Column(name = Columns.START_TIME)
+    private LocalDateTime startTime;
 
-    @Column(name = "end_time")
-    private Date endTime;
+    @Column(name = Columns.END_TIME)
+    private LocalDateTime endTime;
 
     public Schedule getSchedule() {
         return schedule;
@@ -37,22 +45,22 @@ public class TimeFrame {
     }
 
     @ManyToOne
-    @JoinColumn(name = "schedule_id")
+    @JoinColumn(name = Columns.SCHEDULE_ID)
     private Schedule schedule;
 
-    public Date getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Date startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public Date getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Date endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 

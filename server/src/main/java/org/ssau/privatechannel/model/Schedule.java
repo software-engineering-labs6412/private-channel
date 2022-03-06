@@ -10,6 +10,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 
@@ -18,23 +19,28 @@ import java.util.Set;
 @NamedQuery(name = "Schedule.findAllWithTimeFrames",
         query = "select distinct s from Schedule s left join fetch s.timeFrames")
 public class Schedule {
+
+    private static class Columns{
+        public static final String SCHEDULE_ID = "schedule_id";
+        public static final String TIME_END = "time_end";
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "schedule_id", nullable = false)
+    @Column(name = Columns.SCHEDULE_ID, nullable = false)
     private Long id;
 
-    // time of the end of the schedule
-    @Column(name = "time_end")
-    private Date timeEnd;
+    @Column(name = Columns.TIME_END)
+    private LocalDateTime timeEnd;
 
     @OneToMany(mappedBy = "schedule", orphanRemoval = true)
     private Set<TimeFrame> timeFrames;
 
-    public Date getTimeEnd() {
+    public LocalDateTime getTimeEnd() {
         return timeEnd;
     }
 
-    public void setTimeEnd(Date timeEnd) {
+    public void setTimeEnd(LocalDateTime timeEnd) {
         this.timeEnd = timeEnd;
     }
 
