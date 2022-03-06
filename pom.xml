@@ -134,12 +134,12 @@
             <version>${hibernate-version}</version>
         </dependency>
         <!--END Hibernate -->
-
     </dependencies>
 
     <modules>
         <module>server</module>
         <module>client</module>
+        <module>common</module>
     </modules>
     <build>
         <plugins>

@@ -11,5 +11,12 @@
 
     <artifactId>server</artifactId>
 
-
+    <dependencies>
+        <!-- Common module -->
+        <dependency>
+            <groupId>org.ssau.privatechannel</groupId>
+            <artifactId>common</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
 </project>
