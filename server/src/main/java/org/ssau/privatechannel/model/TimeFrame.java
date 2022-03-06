@@ -13,10 +13,14 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "time_frame")
+@Table(name = TimeFrame.Tables.TIME_FRAME)
 @NamedQuery(name = "TimeFrame.findAllWithSchedule",
         query = "select distinct t from TimeFrame t left join fetch t.schedule")
 public class TimeFrame {
+
+    public static class Tables{
+        public static final String TIME_FRAME = "time_frame";
+    }
 
     private static class Columns{
         public static final String TIME_FRAME_ID = "time_frame_id";

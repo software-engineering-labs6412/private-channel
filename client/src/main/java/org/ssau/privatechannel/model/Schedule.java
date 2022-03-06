@@ -13,10 +13,15 @@ import java.util.Date;
 import java.util.Set;
 
 @Entity
-@Table(name = "schedule")
+@Table(name = Schedule.Tables.SCHEDULE)
 @NamedQuery(name = "Schedule.findAllWithTimeFrames",
         query = "select distinct s from Schedule s left join fetch s.timeFrames")
 public class Schedule {
+
+    public static class Tables{
+        public static final String SCHEDULE = "schedule";
+    }
+
 
     private static class Columns{
         public static final String SCHEDULE_ID = "schedule_id";
@@ -31,7 +36,7 @@ public class Schedule {
     @Column(name = Columns.TIME_END)
     private LocalDateTime timeEnd;
 
-    @OneToMany(mappedBy = "schedule", orphanRemoval = true)
+    @OneToMany(mappedBy = Tables.SCHEDULE, orphanRemoval = true)
     private Set<TimeFrame> timeFrames;
 
     public LocalDateTime getTimeEnd() {
