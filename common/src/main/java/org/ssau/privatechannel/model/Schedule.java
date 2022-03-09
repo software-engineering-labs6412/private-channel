@@ -20,12 +20,12 @@ import java.util.Set;
         query = "select distinct s from Schedule s left join fetch s.timeFrames")
 public class Schedule {
 
-    public static class Tables{
+    public static abstract class Tables{
         public static final String SCHEDULE = "schedule";
     }
 
 
-    private static class Columns{
+    private static abstract class Columns{
         public static final String SCHEDULE_ID = "schedule_id";
         public static final String TIME_END = "time_end";
     }

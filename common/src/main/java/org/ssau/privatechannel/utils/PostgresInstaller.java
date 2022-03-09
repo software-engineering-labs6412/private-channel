@@ -1,6 +1,5 @@
 package org.ssau.privatechannel.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +9,7 @@ import java.io.IOException;
 
 public class PostgresInstaller {
 
-    private static class Commands{
+    private static abstract class Commands {
         public static final String START_CONTAINER_INSTALLATION
                 = "java -jar %s -settingsFile=%s";
     }
@@ -31,7 +30,7 @@ public class PostgresInstaller {
     private static final String DEFAULT_INSTANCE_NAME = "private_channel";
     private static final String DEFAULT_USERNAME = "postgres";
     private static final String DEFAULT_PASSWORD = "postgres";
-    private static final String DEFAULT_DB_NAME = "postgres";
+    private static final String DEFAULT_DB_NAME = "private_channel";
     private static final String DEFAULT_PORT = "7433";
 
     public static void run() throws IOException {
