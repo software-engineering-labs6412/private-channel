@@ -44,23 +44,15 @@ public class ScheduleController {
 
     @PostMapping(value = END_POINT, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void saveSchedule(@RequestBody Schedule schedule) {
-        Collection<TimeFrame> timeFrames = schedule.getTimeFrames();
-        TimeFrameComparatorToMin timeFrameComparatorToMin = new TimeFrameComparatorToMin();
-        Optional<TimeFrame> minTimeFrame = timeFrames.stream().min(timeFrameComparatorToMin);
-        if (minTimeFrame.isEmpty()) {
-            return;
-        }
-        LocalDateTime startTime = minTimeFrame.get().getStartTime();
         scheduleRepository.add(schedule);
-        timerService.createTask(startDataTransferringTask, startTime);
-        TimeFrameComparatorToMax timeFrameComparatorToMax = new TimeFrameComparatorToMax();
-        Optional<TimeFrame> maxTimeFrame = timeFrames.stream().max(timeFrameComparatorToMax);
-        if (maxTimeFrame.isEmpty()) {
-            return;
-        }
-        LocalDateTime endTime = maxTimeFrame.get().getEndTime();
-        timerService.createTask(endDataTransferringTask, endTime);
-    }
 
+        Collection<TimeFrame> timeFrames = schedule.getTimeFrames();
+        for(TimeFrame timeFrame : timeFrames){
+            LocalDateTime startTime = timeFrame.getStartTime();
+            LocalDateTime endTime = timeFrame.getEndTime();
+            timerService.createTask(startDataTransferringTask, startTime);
+            timerService.createTask(endDataTransferringTask, endTime);
+        }
+    }
 
 }
