@@ -15,14 +15,18 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = TimeFrame.Tables.TIME_FRAME)
 @NamedQuery(name = "TimeFrame.findAllWithSchedule",
-        query = "select distinct t from TimeFrame t left join fetch t.schedule")
+        query = TimeFrame.Queries.SELECT_ALL_TIMEFRAMES)
 public class TimeFrame {
 
-    public static class Tables{
+    public static abstract class Queries {
+        public static final String SELECT_ALL_TIMEFRAMES = "select distinct t from TimeFrame t left join fetch t.schedule";
+    }
+
+    public static abstract class Tables{
         public static final String TIME_FRAME = "time_frame";
     }
 
-    private static class Columns{
+    private static abstract class Columns {
         public static final String TIME_FRAME_ID = "time_frame_id";
         public static final String START_TIME = "start_time";
         public static final String END_TIME = "end_time";
