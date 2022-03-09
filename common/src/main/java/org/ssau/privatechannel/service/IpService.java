@@ -1,5 +1,6 @@
 package org.ssau.privatechannel.service;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 import org.ssau.privatechannel.utils.CommandRunner;
@@ -10,16 +11,19 @@ import java.io.IOException;
 public class IpService {
 
     @Data
+    @AllArgsConstructor
     public static class IpAddress {
         private String ip;
         private String mask;
     }
 
-    private static class Commands {
+    private static abstract class Commands {
         public static final String
                 ENABLE_FIREWALL = "netsh advfirewall set allprofiles state off",
                 DISABLE_FIREWALL = "netsh advfirewall set allprofiles state on",
                 BLOCK_IP_ADDRESS = "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP "
+                        + "localport=%s action=block dir=IN remoteip=%s",
+                UNBLOCK_IP_ADDRESS = "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP "
                         + "localport=%s action=allow dir=IN remoteip=%s",
                 BLOCK_HTTP_PORT =
                         "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP localport=%s action=block dir=IN",
@@ -29,7 +33,7 @@ public class IpService {
                         "netsh advfirewall firewall delete rule name=\"%s\"";
     }
 
-    private static class Ports {
+    private static abstract class Ports {
         public static final String
                 HTTP = "8080";
     }
@@ -42,10 +46,16 @@ public class IpService {
         CommandRunner.runCommand(Commands.DISABLE_FIREWALL);
     }
 
-    public void blockIPForHttp(IpAddress ipAddress, String ruleName) throws IOException {
+    public void blockIP(IpAddress ipAddress, String ruleName) throws IOException {
         String command = String.format(Commands.BLOCK_IP_ADDRESS, ruleName, Ports.HTTP, ipAddress.getIp());
         CommandRunner.runCommand(command);
     }
+
+    public void unblockIP(IpAddress ipAddress, String ruleName) throws IOException {
+        String command = String.format(Commands.UNBLOCK_IP_ADDRESS, ruleName, Ports.HTTP, ipAddress.getIp());
+        CommandRunner.runCommand(command);
+    }
+
 
     public void blockHttpPort(String ruleName) throws IOException {
         String command = String.format(Commands.BLOCK_HTTP_PORT, ruleName, Ports.HTTP);
