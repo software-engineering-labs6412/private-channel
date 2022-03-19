@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.constants.FirewallRuleNames;
 import org.ssau.privatechannel.constants.SystemProperties;
-import org.ssau.privatechannel.model.ConfidentialInformation;
+import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.IpService;
 import org.ssau.privatechannel.utils.KeyHolder;
@@ -61,13 +61,13 @@ public class StartDataTransferringTask extends TimerTask {
             while(true)
 
             {
-                Collection<ConfidentialInformation> batch = infoService.nextBatch();
+                Collection<ConfidentialInfo> batch = infoService.nextBatch();
 
                 String neighbourUrl = SCHEMA + NEIGHBOUR_ADDRESS + SEND_DATA_ENDPOINT;
                 HttpHeaders headers = new HttpHeaders();
                 headers.add(Headers.KEY, KeyHolder.getKey());
 
-                HttpEntity<Collection<ConfidentialInformation>> entity = new HttpEntity<>(batch, headers);
+                HttpEntity<Collection<ConfidentialInfo>> entity = new HttpEntity<>(batch, headers);
 
                 ResponseEntity<String> response = restTemplate.postForEntity(neighbourUrl, entity, String.class);
                 if (response.getStatusCode() != HttpStatus.OK) {

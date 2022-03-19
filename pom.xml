@@ -134,6 +134,12 @@
             <version>${hibernate-version}</version>
         </dependency>
         <!--END Hibernate -->
+        <!--json -->
+        <dependency>
+            <groupId>com.vladmihalcea</groupId>
+            <artifactId>hibernate-types-52</artifactId>
+            <version>2.9.7</version>
+        </dependency>
     </dependencies>
 
     <modules>
