@@ -11,20 +11,16 @@ import java.util.stream.Collectors;
 @Repository
 public class ConfidentialInfoRepository extends AbstractRepository {
 
-
-    // TODO findAll()
     public Collection<ConfidentialInfo> findAll() {
         return entityManager.createNamedQuery("ConfidentialInfo.findAll",
                 ConfidentialInfo.class).getResultList();
     }
 
-    // TODO nextBatch()
     public Collection<ConfidentialInfo> nextBatch() {
         return entityManager.createNamedQuery("ConfidentialInfo.getBatch",
                 ConfidentialInfo.class).getResultList();
     }
 
-    // TODO deleteBatch
     @Transactional
     public void deleteBatch(Collection<ConfidentialInfo> batch) {
         List<String> ids = batch.stream().map(elem -> elem.getId().toString()).collect(Collectors.toList());

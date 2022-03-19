@@ -12,11 +12,10 @@ import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.ReceivedInfoService;
 
 @RestController
-@RequestMapping(value = "/client")
+@RequestMapping(value = "/api/v1")
 public class ConfidentionalDataController {
 
-    private final String END_POINT = "/api/v1/upload-data";
-
+    private final String END_POINT = "/upload-data";
 
     private final ReceivedInfoService receivedInfoService;
 

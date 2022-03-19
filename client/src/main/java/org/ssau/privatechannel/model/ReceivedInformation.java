@@ -8,28 +8,28 @@ import javax.persistence.*;
 import java.util.Map;
 
 @Entity
-@Table(name = ConfidentialInfo.Tables.CONFIDENTIAL_INFORMATION)
+@Table(name = ReceivedInformation.Tables.CONFIDENTIAL_INFORMATION)
 @NamedQuery(
-        name = "ConfidentialInfo.findAll",
-        query = ConfidentialInfo.Queries.GET_ALL_INFO)
+        name = "ReceivedInformation.findAll",
+        query = ReceivedInformation.Queries.GET_ALL_INFO)
 @NamedNativeQuery(
-        name = "ConfidentialInfo.getBatch",
-        query = ConfidentialInfo.Queries.GET_BATCH_INFO,
-        resultClass = ConfidentialInfo.class)
+        name = "ReceivedInformation.getBatch",
+        query = ReceivedInformation.Queries.GET_BATCH_INFO,
+        resultClass = ReceivedInformation.class)
 @NamedQuery(
-        name = "ConfidentialInfo.deleteBatch",
-        query = ConfidentialInfo.Queries.DELETE_BATCH)
+        name = "ReceivedInformation.deleteBatch",
+        query = ReceivedInformation.Queries.DELETE_BATCH)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-public class ConfidentialInfo {
+public class ReceivedInformation {
 
     public static abstract class Queries {
-        public static final String GET_ALL_INFO = "select info from ConfidentialInfo info";
-        public static final String GET_BATCH_INFO = "select inf.record_id, inf.text_data, inf.reveiver_ip, inf.sender_ip from conf_info inf limit 10";
-        public static final String DELETE_BATCH = "delete from ConfidentialInfo info where info.id in (:ids)";
+        public static final String GET_ALL_INFO = "select info from ReceivedInformation info";
+        public static final String GET_BATCH_INFO = "select inf.record_id, inf.text_data from conf_info inf limit 10";
+        public static final String DELETE_BATCH = "delete from ReceivedInformation info where info.id in (:ids)";
     }
 
     public static abstract class Tables {
-        public static final String CONFIDENTIAL_INFORMATION = "conf_info";
+        public static final String CONFIDENTIAL_INFORMATION = "received_info";
     }
 
     private static abstract class Columns {
@@ -49,10 +49,10 @@ public class ConfidentialInfo {
     private Map<String, Object> data;
 
 
-    @Column(name = ConfidentialInfo.Columns.SENDER_IP, nullable = false)
+    @Column(name = Columns.SENDER_IP, nullable = false)
     private String senderIP;
 
-    @Column(name = ConfidentialInfo.Columns.RECEIVER_IP, nullable = false)
+    @Column(name = Columns.RECEIVER_IP, nullable = false)
     private String receiverIP;
 
     public String getSenderIP() {
@@ -71,7 +71,7 @@ public class ConfidentialInfo {
         this.receiverIP = receiverIP;
     }
 
-    public ConfidentialInfo() {
+    public ReceivedInformation() {
     }
 
     public Long getId() {
