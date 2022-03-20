@@ -3,9 +3,32 @@ package org.ssau.privatechannel.utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommandRunner {
-    public static void runCommand(String command) throws IOException {
+    public static void run(String command) throws IOException {
+        runWithReturn(command);
+    }
+
+    public static List<String> runWithReturn(String command) throws IOException {
+        ProcessBuilder builder = new ProcessBuilder(
+                "cmd.exe", "/c", command);
+        builder.redirectErrorStream(true);
+        Process p = builder.start();
+        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        List<String> fullConsoleOutput = new ArrayList<>();
+        String line;
+        while (true) {
+            line = r.readLine();
+            if (line == null || "".equals(line)) { break; }
+            fullConsoleOutput.add(line);
+            System.out.println(line);
+        }
+        return fullConsoleOutput;
+    }
+
+    public static void runQuiet(String command) throws IOException {
         ProcessBuilder builder = new ProcessBuilder(
                 "cmd.exe", "/c", command);
         builder.redirectErrorStream(true);
@@ -15,7 +38,6 @@ public class CommandRunner {
         while (true) {
             line = r.readLine();
             if (line == null) { break; }
-            System.out.println(line);
         }
     }
 }

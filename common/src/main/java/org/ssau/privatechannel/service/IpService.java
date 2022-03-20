@@ -39,36 +39,36 @@ public class IpService {
     }
 
     public void enableFirewall() throws IOException {
-        CommandRunner.runCommand(Commands.ENABLE_FIREWALL);
+        CommandRunner.run(Commands.ENABLE_FIREWALL);
     }
 
     public void disableFirewall() throws IOException {
-        CommandRunner.runCommand(Commands.DISABLE_FIREWALL);
+        CommandRunner.run(Commands.DISABLE_FIREWALL);
     }
 
     public void blockIP(IpAddress ipAddress, String ruleName) throws IOException {
         String command = String.format(Commands.BLOCK_IP_ADDRESS, ruleName, Ports.HTTP, ipAddress.getIp());
-        CommandRunner.runCommand(command);
+        CommandRunner.run(command);
     }
 
     public void unblockIP(IpAddress ipAddress, String ruleName) throws IOException {
         String command = String.format(Commands.UNBLOCK_IP_ADDRESS, ruleName, Ports.HTTP, ipAddress.getIp());
-        CommandRunner.runCommand(command);
+        CommandRunner.run(command);
     }
 
 
     public void blockHttpPort(String ruleName) throws IOException {
         String command = String.format(Commands.BLOCK_HTTP_PORT, ruleName, Ports.HTTP);
-        CommandRunner.runCommand(command);
+        CommandRunner.run(command);
     }
 
     public void unblockHttpPort(String ruleName) throws IOException {
         String command = String.format(Commands.UNBLOCK_HTTP_PORT, ruleName, Ports.HTTP);
-        CommandRunner.runCommand(command);
+        CommandRunner.run(command);
     }
 
     public void deleteRuleByName(String ruleName) throws IOException {
         String command = String.format(Commands.DELETE_RULE, ruleName);
-        CommandRunner.runCommand(command);
+        CommandRunner.run(command);
     }
 }
