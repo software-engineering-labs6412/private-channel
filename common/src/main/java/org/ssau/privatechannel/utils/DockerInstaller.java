@@ -1,5 +1,6 @@
 package org.ssau.privatechannel.utils;
 
+import javax.swing.*;
 import java.io.IOException;
 
 public class DockerInstaller {
@@ -10,7 +11,7 @@ public class DockerInstaller {
     private static final String INSTALLER_FILE_NAME = "Docker Desktop Installer.exe";
 
     private static abstract class Commands {
-        public static final String RUN_DOCKER = "\"C:\\Program Files\\Docker\\Docker\\Docker Desktop2.exe\" & echo Successful";
+        public static final String RUN_DOCKER = "\"C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe\" & echo Successful";
         public static final String DOWNLOAD_DOCKER_DESKTOP =
                 String.format("cd %s & wget %s", INSTALLER_PATH, DOCKER_DESKTOP_DOWNLOAD_LINK);
         public static final String DOCKER_QUIET_INSTALL =
@@ -20,14 +21,26 @@ public class DockerInstaller {
     }
 
     public static void run() throws IOException, InterruptedException {
+
         String result = CommandRunner.runWithReturn(Commands.RUN_DOCKER).get(0);
 
         // Docker not installed
         if (!result.equals("Successful")) {
-            CommandRunner.runQuiet(Commands.DOWNLOAD_DOCKER_DESKTOP); // Work
-            CommandRunner.run(Commands.DOCKER_QUIET_INSTALL); // Work
-            CommandRunner.run(Commands.DELETE_DOCKER_INSTALLER); // Work
+            boolean isDockerCanBeInstalled = showOfferDockerInstallationPopUp();
+
+            if (isDockerCanBeInstalled) {
+                CommandRunner.runQuiet(Commands.DOWNLOAD_DOCKER_DESKTOP); // Work
+                CommandRunner.run(Commands.DOCKER_QUIET_INSTALL); // Work
+                CommandRunner.run(Commands.DELETE_DOCKER_INSTALLER); // Work
+            }
         }
+    }
+
+    private static boolean showOfferDockerInstallationPopUp() {
+        JFrame jFrame = new JFrame();
+        int result = JOptionPane.showConfirmDialog(jFrame,
+                "Docker not installed on your computer. Would you like to install docker? (Docker is required)");
+        return result == 0;
     }
 
 }
