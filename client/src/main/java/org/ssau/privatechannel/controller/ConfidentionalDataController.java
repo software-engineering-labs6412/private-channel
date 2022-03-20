@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.model.ReceivedInformation;
-import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.ReceivedInfoService;
 
 @RestController

@@ -22,3 +22,10 @@
 hs_err_pid*
 /.idea/
 /server/target/
+/common/target/
+/client/target/
+/client/client.iml
+/common/common.iml
+/server/server.iml
+/installation/default_settings.json
+/installation/docker/Docker Desktop Installer.exe

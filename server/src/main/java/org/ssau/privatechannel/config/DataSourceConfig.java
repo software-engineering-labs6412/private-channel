@@ -11,6 +11,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.ssau.privatechannel.constants.SystemProperties;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -21,17 +22,13 @@ import java.util.Properties;
 @EnableTransactionManagement
 public class DataSourceConfig {
 
-    @Value("${spring.datasource.username}")
-    private String username;
-
-    @Value("${spring.datasource.password}")
-    private String password;
-
-    @Value("${spring.datasource.url}")
-    private String url;
-
     @Bean
     public DataSource getDataSource() {
+
+        String url = System.getProperty(SystemProperties.DB_URL);
+        String username = System.getProperty(SystemProperties.DB_USER);
+        String password = System.getProperty(SystemProperties.DB_PASSWORD);
+
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.url(url);
         dataSourceBuilder.username(username);

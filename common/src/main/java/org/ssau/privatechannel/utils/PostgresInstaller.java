@@ -1,6 +1,8 @@
 package org.ssau.privatechannel.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +18,8 @@ public class PostgresInstaller {
 
     @Data
     @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     private static class ContainerSettings {
         private String instanceName;
         private String user;
@@ -34,15 +38,34 @@ public class PostgresInstaller {
     private static final String DEFAULT_PORT = "7433";
 
     public static void run() throws IOException {
-        createSettingsFile();
+        run(DEFAULT_INSTANCE_NAME, DEFAULT_PORT);
+    }
+
+    public static void run(String dbName, String port) throws IOException {
+        createSettingsFile(dbName, port);
         String command = String.format(Commands.START_CONTAINER_INSTALLATION,
                 DB_INSTALLATION_JAR_PATH,
                 SETTINGS_FILE_PATH);
-        CommandRunner.runCommand(command);
+        CommandRunner.run(command);
     }
 
-    private static void createSettingsFile() throws IOException {
-        ContainerSettings settings = getDefaultSettings(DEFAULT_INSTANCE_NAME, DEFAULT_PORT);
+    public static void run(ContainerSettings settings) throws IOException {
+        createSettingsFile(settings);
+        String command = String.format(Commands.START_CONTAINER_INSTALLATION,
+                DB_INSTALLATION_JAR_PATH,
+                SETTINGS_FILE_PATH);
+        CommandRunner.run(command);
+    }
+
+    private static void createSettingsFile(String dbName, String port) throws IOException {
+        ContainerSettings settings = getDefaultSettings(dbName, port);
+        String settingsJson = new ObjectMapper().writeValueAsString(settings);
+        FileWriter writer = new FileWriter(SETTINGS_FILE_PATH);
+        writer.write(settingsJson);
+        writer.close();
+    }
+
+    private static void createSettingsFile(ContainerSettings settings) throws IOException {
         String settingsJson = new ObjectMapper().writeValueAsString(settings);
         FileWriter writer = new FileWriter(SETTINGS_FILE_PATH);
         writer.write(settingsJson);
