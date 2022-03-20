@@ -15,10 +15,14 @@ public class CommandRunner {
         ProcessBuilder builder = new ProcessBuilder(
                 "cmd.exe", "/c", command);
         builder.redirectErrorStream(true);
-        Process p = builder.start();
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        Process process = builder.start();
+
+        InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+        BufferedReader r = new BufferedReader(inputStreamReader);
+
         List<String> fullConsoleOutput = new ArrayList<>();
         String line;
+
         while (true) {
             line = r.readLine();
             if (line == null || "".equals(line)) { break; }
@@ -32,9 +36,13 @@ public class CommandRunner {
         ProcessBuilder builder = new ProcessBuilder(
                 "cmd.exe", "/c", command);
         builder.redirectErrorStream(true);
-        Process p = builder.start();
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        Process process = builder.start();
+
+        InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+        BufferedReader r = new BufferedReader(inputStreamReader);
+
         String line;
+
         while (true) {
             line = r.readLine();
             if (line == null) { break; }
