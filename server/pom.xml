@@ -27,7 +27,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <fork>true</fork>
-                    <mainClass>org.ssau.privatechannel.Client</mainClass>
+                    <mainClass>org.ssau.privatechannel.Server</mainClass>
                 </configuration>
                 <executions>
                     <execution>

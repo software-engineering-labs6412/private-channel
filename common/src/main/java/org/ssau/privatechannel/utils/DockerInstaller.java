@@ -1,5 +1,7 @@
 package org.ssau.privatechannel.utils;
 
+import org.ssau.privatechannel.exception.DockerMissingException;
+
 import javax.swing.*;
 import java.io.IOException;
 
@@ -20,7 +22,7 @@ public class DockerInstaller {
                 String.format("cd %s & del \"%s\"", INSTALLER_PATH, INSTALLER_FILE_NAME);
     }
 
-    public static void run() throws IOException, InterruptedException {
+    public static void run() throws IOException, InterruptedException, DockerMissingException {
 
         String result = CommandRunner.runWithReturn(Commands.RUN_DOCKER).get(0);
 
@@ -32,6 +34,8 @@ public class DockerInstaller {
                 CommandRunner.runQuiet(Commands.DOWNLOAD_DOCKER_DESKTOP); // Work
                 CommandRunner.run(Commands.DOCKER_QUIET_INSTALL); // Work
                 CommandRunner.run(Commands.DELETE_DOCKER_INSTALLER); // Work
+            } else {
+                throw new DockerMissingException("Docker-Desktop is required for private-channel application");
             }
         }
     }

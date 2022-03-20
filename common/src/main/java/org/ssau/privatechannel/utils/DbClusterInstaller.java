@@ -1,6 +1,7 @@
 package org.ssau.privatechannel.utils;
 
 import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.exception.InvalidInstanceTypeException;
 
 import java.io.IOException;
 import java.util.List;
@@ -24,10 +25,10 @@ public class DbClusterInstaller {
     private static final Integer DEFAULT_CLIENTS_COUNT = 2;
     private static final String START_PORT = "7430";
 
-    public static void singleInstall(String instance) throws IOException {
+    public static void singleInstall(String instance) throws IOException, InvalidInstanceTypeException {
 
         if (!instance.equals(Instances.SERVER) && !instance.equals(Instances.CLIENT)) {
-            throw new RuntimeException("DB Installation must be only for server or client instance");
+            throw new InvalidInstanceTypeException("DB Installation must be only for server or client instance");
         }
 
         String dbUrl = System.getProperty(SystemProperties.DB_URL);
@@ -45,7 +46,7 @@ public class DbClusterInstaller {
         }
     }
 
-    public static void run() throws IOException {
+    public static void run() throws IOException, InvalidInstanceTypeException {
 
         singleInstall(Instances.SERVER);
 

@@ -1,6 +1,9 @@
 package org.ssau.privatechannel.utils;
 
 import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.exception.DockerMissingException;
+import org.ssau.privatechannel.exception.InvalidAppInstallationModeException;
+import org.ssau.privatechannel.exception.InvalidInstanceTypeException;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -19,10 +22,11 @@ public class ApplicationInstaller {
         public static final String DEFAULT_DB_PASSWORD = "postgres";
     }
 
-    public static void run(String mode, String instance) throws IOException, InterruptedException {
+    public static void run(String mode, String instance) throws IOException, InterruptedException,
+            DockerMissingException, InvalidAppInstallationModeException, InvalidInstanceTypeException {
         DockerInstaller.run();
 
-        // TODO: need to be deleted
+        // TODO (tmp): need to be deleted
         mode = debugModeDialogWindow();
 
         System.setProperty(SystemProperties.DB_URL, DefaultDbParams.DEFAULT_DB_URL);
@@ -36,15 +40,15 @@ public class ApplicationInstaller {
             if (Instances.SERVER.equals(instance) || Instances.CLIENT.equals(instance)) {
                 DbClusterInstaller.singleInstall(instance);
             } else {
-                throw new RuntimeException("Invalid instance type provided during application installation");
+                throw new InvalidInstanceTypeException("Invalid instance type provided during application installation");
             }
         } else {
-            throw new RuntimeException("Invalid application installation mode");
+            throw new InvalidAppInstallationModeException("Invalid application installation mode");
         }
 
     }
 
-    @Deprecated // TODO: must be deleted before release!
+    @Deprecated // TODO (tmp): must be deleted before release!
     private static String debugModeDialogWindow() {
         JFrame jFrame = new JFrame();
         int result = JOptionPane.showConfirmDialog(jFrame,

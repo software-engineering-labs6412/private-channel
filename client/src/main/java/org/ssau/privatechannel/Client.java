@@ -3,6 +3,9 @@ package org.ssau.privatechannel;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.exception.DockerMissingException;
+import org.ssau.privatechannel.exception.InvalidAppInstallationModeException;
+import org.ssau.privatechannel.exception.InvalidInstanceTypeException;
 import org.ssau.privatechannel.utils.ApplicationInstaller;
 
 import java.io.IOException;
@@ -22,6 +25,12 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (DockerMissingException e) {
+            e.printStackTrace();
+        } catch (InvalidAppInstallationModeException e) {
+            e.printStackTrace();
+        } catch (InvalidInstanceTypeException e) {
             e.printStackTrace();
         }
         SpringApplication.run(Client.class, args);
