@@ -46,7 +46,6 @@ public class Schedule {
     private LocalDateTime timeEnd;
 
     @OneToMany(mappedBy = Tables.SCHEDULE, orphanRemoval = true)
-
     private Set<TimeFrame> timeFrames;
 
     public LocalDateTime getTimeEnd() {
