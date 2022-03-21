@@ -1,24 +1,28 @@
 package org.ssau.privatechannel.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 import java.util.Set;
 
 @Entity
 @Table(name = Schedule.Tables.SCHEDULE)
 @NamedQuery(name = "Schedule.findAllWithTimeFrames",
         query = "select distinct s from Schedule s left join fetch s.timeFrames")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Schedule {
+    private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
+    private static final String TIMEZONE = "Europe/Samara";
 
     public static abstract class Tables{
         public static final String SCHEDULE = "schedule";
@@ -36,6 +40,9 @@ public class Schedule {
     private Long id;
 
     @Column(name = Columns.TIME_END)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN, timezone = TIMEZONE)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timeEnd;
 
     @OneToMany(mappedBy = Tables.SCHEDULE, orphanRemoval = true)

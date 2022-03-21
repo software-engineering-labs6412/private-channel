@@ -1,5 +1,13 @@
 package org.ssau.privatechannel.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,7 +24,11 @@ import java.time.LocalDateTime;
 @Table(name = TimeFrame.Tables.TIME_FRAME)
 @NamedQuery(name = "TimeFrame.findAllWithSchedule",
         query = TimeFrame.Queries.SELECT_ALL_TIMEFRAMES)
+@NoArgsConstructor
+@AllArgsConstructor
 public class TimeFrame {
+    private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
+    private static final String TIMEZONE = "Europe/Samara";
 
     public static abstract class Queries {
         public static final String SELECT_ALL_TIMEFRAMES = "select distinct t from TimeFrame t left join fetch t.schedule";
@@ -39,9 +51,15 @@ public class TimeFrame {
     private Long id;
 
     @Column(name = Columns.START_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN, timezone = TIMEZONE)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime startTime;
 
     @Column(name = Columns.END_TIME)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN, timezone = TIMEZONE)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime endTime;
 
     public Schedule getSchedule() {
