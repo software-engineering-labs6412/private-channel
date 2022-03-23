@@ -49,8 +49,7 @@ public class DbClusterInstaller {
         } else {
             log.info("Database container \"{}\" not exist. Starting database installation...", instance);
 
-            String port = System.getProperty(SystemProperties.DB_PORT);
-            PostgresInstaller.run(instance, port);
+            PostgresInstaller.run(instance, dbPort);
         }
     }
 

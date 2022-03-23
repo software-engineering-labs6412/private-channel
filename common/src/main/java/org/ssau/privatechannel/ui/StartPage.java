@@ -17,8 +17,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.ssau.privatechannel.utils.DbClusterInstaller.Instances;
-
 public class StartPage {
 
     private static abstract class DefaultParams {
@@ -37,6 +35,11 @@ public class StartPage {
         public static final int MAX_PARAMETER_LENGTH = 50;
         public static final int MIN_PORT = 7000;
         public static final int MAX_PORT = 9000;
+    }
+
+    private static abstract class Instances {
+        public static final String CLIENT = "Client";
+        public static final String SERVER = "Server";
     }
 
     public static void show() throws IOException {
@@ -114,6 +117,7 @@ public class StartPage {
 
         JTextField serverIp = new JTextField();
         JTextField receiverIp = new JTextField();
+
         // Server and other client IPs (only for clients)
         if (instances[0].equals(Instances.CLIENT)) {
             grid.add(new JLabel("Server ip:"));

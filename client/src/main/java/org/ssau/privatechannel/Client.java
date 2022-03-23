@@ -29,8 +29,6 @@ public class Client {
         }
 
         try {
-            String dbPort = "7432";
-            System.setProperty(SystemProperties.DB_PORT, dbPort);
             ApplicationInstaller.run(Mode.SINGLE_DB, Instances.CLIENT);
         } catch (Exception e) {
             throw new RuntimeException("Something wrong during client start: ", e);

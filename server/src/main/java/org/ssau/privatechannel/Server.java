@@ -27,8 +27,6 @@ public class Server {
         }
 
         try {
-            String dbPort = "7430";
-            System.setProperty(SystemProperties.DB_PORT, dbPort);
             ApplicationInstaller.run(Mode.SINGLE_DB, Instances.SERVER);
         } catch (Exception e) {
             throw new RuntimeException("Something wrong during server start: ", e);
