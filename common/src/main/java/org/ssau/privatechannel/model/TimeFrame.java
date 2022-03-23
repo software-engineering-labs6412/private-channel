@@ -8,22 +8,15 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import java.sql.Timestamp;
+import javax.persistence.*;
 import java.time.LocalDateTime;
+
+import static org.ssau.privatechannel.model.TimeFrame.Queries;
+import static org.ssau.privatechannel.model.TimeFrame.QueryNames;
 
 @Entity
 @Table(name = TimeFrame.Tables.TIME_FRAME)
-@NamedQuery(name = "TimeFrame.findAllWithSchedule",
-        query = TimeFrame.Queries.SELECT_ALL_TIMEFRAMES)
+@NamedQuery(name = QueryNames.SELECT_ALL_TIMEFRAMES, query = Queries.SELECT_ALL_TIMEFRAMES)
 @NoArgsConstructor
 @AllArgsConstructor
 public class TimeFrame {
@@ -32,6 +25,10 @@ public class TimeFrame {
 
     public static abstract class Queries {
         public static final String SELECT_ALL_TIMEFRAMES = "select distinct t from TimeFrame t left join fetch t.schedule";
+    }
+
+    public static abstract class QueryNames {
+        public static final String SELECT_ALL_TIMEFRAMES = "TimeFrame.findAllWithSchedule";
     }
 
     public static abstract class Tables{
@@ -62,6 +59,10 @@ public class TimeFrame {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime endTime;
 
+    @ManyToOne
+    @JoinColumn(name = Columns.SCHEDULE_ID)
+    private Schedule schedule;
+
     public Schedule getSchedule() {
         return schedule;
     }
@@ -69,10 +70,6 @@ public class TimeFrame {
     public void setSchedule(Schedule schedule) {
         this.schedule = schedule;
     }
-
-    @ManyToOne
-    @JoinColumn(name = Columns.SCHEDULE_ID)
-    private Schedule schedule;
 
     public LocalDateTime getStartTime() {
         return startTime;

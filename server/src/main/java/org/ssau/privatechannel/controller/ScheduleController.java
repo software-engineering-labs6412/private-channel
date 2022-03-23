@@ -16,8 +16,12 @@ public class ScheduleController {
 
     private final String endPoint = "/api/v1";
 
+    private final ScheduleRepository scheduleRepository;
+
     @Autowired
-    ScheduleRepository scheduleRepository;
+    public ScheduleController(ScheduleRepository scheduleRepository) {
+        this.scheduleRepository = scheduleRepository;
+    }
 
     @PostMapping(value = endPoint, produces = MediaType.APPLICATION_JSON_VALUE)
     public Schedule sendSchedule() {

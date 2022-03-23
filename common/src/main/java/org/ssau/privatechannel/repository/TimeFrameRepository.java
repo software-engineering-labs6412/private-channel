@@ -9,8 +9,12 @@ import java.util.Collection;
 @Repository
 public class TimeFrameRepository extends AbstractRepository {
 
-    Collection<TimeFrame> findAll() {
-        return entityManager.createNamedQuery("TimeFrame.findAllWithSchedule", TimeFrame.class).getResultList();
+    private static class NamedQueries {
+        public static final String FIND_ALL_WITH_SCHEDULE = "TimeFrame.findAllWithSchedule";
+    }
+
+    public Collection<TimeFrame> findAll() {
+        return entityManager.createNamedQuery(NamedQueries.FIND_ALL_WITH_SCHEDULE, TimeFrame.class).getResultList();
     }
 
     @Transactional

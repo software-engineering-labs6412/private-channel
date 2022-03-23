@@ -11,26 +11,32 @@ import java.util.stream.Collectors;
 @Repository
 public class ReceivedInfoRepository extends AbstractRepository {
 
+    private static abstract class QueryNames {
+        public static final String FIND_ALL = "ReceivedInformation.findAll";
+        public static final String NEXT_BATCH = "ReceivedInformation.getBatch";
+        public static final String DELETE_BATCH = "ReceivedInformation.deleteBatch";
+    }
 
-    // TODO findAll()
+    private static abstract class QueryParams {
+        public static final String IDS = "ids";
+    }
+
     public Collection<ReceivedInformation> findAll() {
-        return entityManager.createNamedQuery("ReceivedInformation.findAll",
+        return entityManager.createNamedQuery(QueryNames.FIND_ALL,
                 ReceivedInformation.class).getResultList();
     }
 
-    // TODO nextBatch()
     public Collection<ReceivedInformation> nextBatch() {
-        return entityManager.createNamedQuery("ReceivedInformation.getBatch",
+        return entityManager.createNamedQuery(QueryNames.NEXT_BATCH,
                 ReceivedInformation.class).getResultList();
     }
 
-    // TODO deleteBatch
     @Transactional
     public void deleteBatch(Collection<ReceivedInformation> batch) {
         List<String> ids = batch.stream().map(elem -> elem.getId().toString()).collect(Collectors.toList());
         String batchAsParameter = String.join(", ", ids);
-        entityManager.createNamedQuery("ReceivedInformation.deleteBatch",
-                ReceivedInformation.class).setParameter("ids", batchAsParameter).executeUpdate();
+        entityManager.createNamedQuery(QueryNames.DELETE_BATCH,
+                ReceivedInformation.class).setParameter(QueryParams.IDS, batchAsParameter).executeUpdate();
     }
 
     @Transactional

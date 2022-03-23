@@ -2,7 +2,6 @@ package org.ssau.privatechannel.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.repository.ScheduleRepository;
 

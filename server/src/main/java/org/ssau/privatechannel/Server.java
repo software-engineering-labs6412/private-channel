@@ -3,9 +3,7 @@ package org.ssau.privatechannel;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.ssau.privatechannel.constants.SystemProperties;
-import org.ssau.privatechannel.exception.DockerMissingException;
-import org.ssau.privatechannel.exception.InvalidAppInstallationModeException;
-import org.ssau.privatechannel.exception.InvalidInstanceTypeException;
+import org.ssau.privatechannel.ui.StartPage;
 import org.ssau.privatechannel.utils.ApplicationInstaller;
 
 import java.io.IOException;
@@ -15,24 +13,25 @@ import static org.ssau.privatechannel.utils.DbClusterInstaller.Instances;
 
 @SpringBootApplication
 public class Server {
+
+    private static final String CURRENT_INSTANCE = "Server";
+
     public static void main(String[] args) {
-/*        System.setProperty(SystemProperties.CLIENT1_IP, args[1]);
-        System.setProperty(SystemProperties.CLIENT2_IP, args[2]);
-        System.setProperty(SystemProperties.SERVER_IP, args[3]);*/
+
+        System.setProperty(SystemProperties.INSTANCE, CURRENT_INSTANCE);
+
+        try {
+            StartPage.show();
+        } catch (IOException e) {
+            throw new RuntimeException("Could not show start page", e);
+        }
+
         try {
             String dbPort = "7430";
             System.setProperty(SystemProperties.DB_PORT, dbPort);
             ApplicationInstaller.run(Mode.SINGLE_DB, Instances.SERVER);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (DockerMissingException e) {
-            e.printStackTrace();
-        } catch (InvalidAppInstallationModeException e) {
-            e.printStackTrace();
-        } catch (InvalidInstanceTypeException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException("Something wrong during server start: ", e);
         }
         SpringApplication.run(Server.class);
     }

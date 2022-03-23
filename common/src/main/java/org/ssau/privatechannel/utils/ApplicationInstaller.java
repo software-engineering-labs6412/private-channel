@@ -1,5 +1,7 @@
 package org.ssau.privatechannel.utils;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.relational.core.sql.In;
 import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.exception.DockerMissingException;
 import org.ssau.privatechannel.exception.InvalidAppInstallationModeException;
@@ -9,6 +11,7 @@ import javax.swing.*;
 import java.io.IOException;
 import static org.ssau.privatechannel.utils.DbClusterInstaller.Instances;
 
+@Slf4j
 public class ApplicationInstaller {
 
     public static abstract class Mode {
@@ -34,15 +37,21 @@ public class ApplicationInstaller {
         System.setProperty(SystemProperties.DB_PASSWORD, DefaultDbParams.DEFAULT_DB_PASSWORD);
 
         if (Mode.CLUSTER_DB.equals(mode)) {
+            log.info("Full db cluster will be installed");
             DbClusterInstaller.run();
         }
         else if (Mode.SINGLE_DB.equals(mode)) {
+            log.info("Single database will be installed");
             if (Instances.SERVER.equals(instance) || Instances.CLIENT.equals(instance)) {
                 DbClusterInstaller.singleInstall(instance);
             } else {
+                log.error("Invalid instance type provided during database deployment: {}. Must be {} or {}",
+                        instance, Instances.SERVER, Instances.CLIENT);
                 throw new InvalidInstanceTypeException("Invalid instance type provided during application installation");
             }
         } else {
+            log.error("Provided invalid application installation mode: {}. Must be {} or {}",
+                    mode, Mode.CLUSTER_DB, Mode.SINGLE_DB);
             throw new InvalidAppInstallationModeException("Invalid application installation mode");
         }
 

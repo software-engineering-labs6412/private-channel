@@ -10,19 +10,22 @@ import org.ssau.privatechannel.model.ReceivedInformation;
 import org.ssau.privatechannel.service.ReceivedInfoService;
 
 @RestController
-@RequestMapping(value = "/api/v1")
-public class ConfidentionalDataController {
+@RequestMapping(value = ConfidentialDataController.Endpoints.API_V1)
+public class ConfidentialDataController {
 
-    private final String END_POINT = "/upload-data";
+    public static abstract class Endpoints {
+        public static final String API_V1 = "/api/v1";
+        public static final String UPLOAD_DATA = "/upload-data";
+    }
 
     private final ReceivedInfoService receivedInfoService;
 
     @Autowired
-    ConfidentionalDataController(ReceivedInfoService receivedInfoService) {
+    public ConfidentialDataController(ReceivedInfoService receivedInfoService) {
         this.receivedInfoService = receivedInfoService;
     }
 
-    @PostMapping(value = END_POINT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = Endpoints.UPLOAD_DATA, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void uploadData(@RequestBody ReceivedInformation confidentialInfo) {
         receivedInfoService.add(confidentialInfo);
     }

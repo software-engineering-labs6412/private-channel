@@ -7,18 +7,21 @@ import org.hibernate.annotations.TypeDef;
 import javax.persistence.*;
 import java.util.Map;
 
+import static org.ssau.privatechannel.model.ReceivedInformation.Queries;
+import static org.ssau.privatechannel.model.ReceivedInformation.QueryNames;
+
 @Entity
 @Table(name = ReceivedInformation.Tables.CONFIDENTIAL_INFORMATION)
 @NamedQuery(
-        name = "ReceivedInformation.findAll",
-        query = ReceivedInformation.Queries.GET_ALL_INFO)
+        name = QueryNames.GET_ALL_INFO,
+        query = Queries.GET_ALL_INFO)
 @NamedNativeQuery(
-        name = "ReceivedInformation.getBatch",
-        query = ReceivedInformation.Queries.GET_BATCH_INFO,
+        name = QueryNames.GET_BATCH_INFO,
+        query = Queries.GET_BATCH_INFO,
         resultClass = ReceivedInformation.class)
 @NamedQuery(
-        name = "ReceivedInformation.deleteBatch",
-        query = ReceivedInformation.Queries.DELETE_BATCH)
+        name = QueryNames.DELETE_BATCH,
+        query = Queries.DELETE_BATCH)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class ReceivedInformation {
 
@@ -28,6 +31,12 @@ public class ReceivedInformation {
         public static final String DELETE_BATCH = "delete from ReceivedInformation info where info.id in (:ids)";
     }
 
+    public static abstract class QueryNames {
+        public static final String GET_ALL_INFO = "ReceivedInformation.findAll";
+        public static final String GET_BATCH_INFO = "ReceivedInformation.getBatch";
+        public static final String DELETE_BATCH = "ReceivedInformation.deleteBatch";
+    }
+
     public static abstract class Tables {
         public static final String CONFIDENTIAL_INFORMATION = "received_info";
     }
@@ -35,8 +44,11 @@ public class ReceivedInformation {
     private static abstract class Columns {
         public static final String RECORD_ID = "record_id";
         public static final String SENDER_IP = "sender_ip";
-        public static final String RECEIVER_IP = "reveiver_ip";
+        public static final String RECEIVER_IP = "receiver_ip";
         public static final String TEXT_DATA = "text_data";
+    }
+
+    public ReceivedInformation() {
     }
 
     @Id
@@ -71,9 +83,6 @@ public class ReceivedInformation {
         this.receiverIP = receiverIP;
     }
 
-    public ReceivedInformation() {
-    }
-
     public Long getId() {
         return id;
     }
@@ -85,7 +94,6 @@ public class ReceivedInformation {
     public Map<String, Object> getData() {
         return data;
     }
-
 
     public void setData(Map<String, Object> data) {
         this.data = data;

@@ -7,9 +7,12 @@ import org.ssau.privatechannel.model.AuthorizationKey;
 @Repository
 public class AuthKeyRepository extends AbstractRepository {
 
+    private static abstract class QueryNames {
+        public static final String GET = "AuthorizationKey.get";
+    }
+
     public AuthorizationKey get() {
-        return entityManager.createNamedQuery("AuthorizationKey.get",
-                AuthorizationKey.class).getSingleResult();
+        return entityManager.createNamedQuery(QueryNames.GET, AuthorizationKey.class).getSingleResult();
     }
 
     @Transactional

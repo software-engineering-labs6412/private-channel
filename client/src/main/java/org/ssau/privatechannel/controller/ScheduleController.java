@@ -17,8 +17,13 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 
 @RestController
-@RequestMapping(path = "/api/v1")
+@RequestMapping(path = ScheduleController.Endpoints.API_V1)
 public class ScheduleController {
+
+    public static abstract class Endpoints {
+        public static final String API_V1 = "/api/v1";
+        public static final String SCHEDULE = "/schedule";
+    }
 
     private final ScheduleRepository scheduleRepository;
     private final TimerService timerService;
@@ -35,9 +40,7 @@ public class ScheduleController {
         this.endDataTransferringTask = endDataTransferringTask;
     }
 
-    private final String END_POINT = "/schedule";
-
-    @PostMapping(value = END_POINT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = Endpoints.SCHEDULE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void saveSchedule(@RequestBody Schedule schedule) {
         scheduleRepository.add(schedule);
 

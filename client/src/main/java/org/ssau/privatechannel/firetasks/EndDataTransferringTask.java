@@ -16,7 +16,7 @@ import java.util.TimerTask;
 @ComponentScan("org.ssau.privatechannel.config")
 public class EndDataTransferringTask extends TimerTask {
 
-    private final String NEIGHBOUR_ADDRESS = System.getProperty(SystemProperties.NEIGHBOUR_IP);
+    private final String NEIGHBOUR_ADDRESS = System.getProperty(SystemProperties.RECEIVER_IP);
     private static final String STANDARD_MASK = "255.255.255.0";
 
     private final IpService ipService;

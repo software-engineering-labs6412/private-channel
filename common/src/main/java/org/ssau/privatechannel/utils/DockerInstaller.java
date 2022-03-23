@@ -1,10 +1,12 @@
 package org.ssau.privatechannel.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.ssau.privatechannel.exception.DockerMissingException;
 
 import javax.swing.*;
 import java.io.IOException;
 
+@Slf4j
 public class DockerInstaller {
 
     private static final String DOCKER_DESKTOP_DOWNLOAD_LINK =
@@ -28,13 +30,16 @@ public class DockerInstaller {
 
         // Docker not installed
         if (!result.equals("Successful")) {
+            log.info("Docker Desktop not installed on current PC. Installation of docker desktop will be offer");
             boolean isDockerCanBeInstalled = showOfferDockerInstallationPopUp();
 
             if (isDockerCanBeInstalled) {
+                log.info("Starting docker desktop installation...");
                 CommandRunner.runQuiet(Commands.DOWNLOAD_DOCKER_DESKTOP); // Work
                 CommandRunner.run(Commands.DOCKER_QUIET_INSTALL); // Work
                 CommandRunner.run(Commands.DELETE_DOCKER_INSTALLER); // Work
             } else {
+                log.error("Docker will not be installed on current PC: user cancelled installation. Exiting...");
                 throw new DockerMissingException("Docker-Desktop is required for private-channel application");
             }
         }

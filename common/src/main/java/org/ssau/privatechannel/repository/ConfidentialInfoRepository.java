@@ -11,13 +11,19 @@ import java.util.stream.Collectors;
 @Repository
 public class ConfidentialInfoRepository extends AbstractRepository {
 
+    private static class NamedQueries {
+        public static final String FIND_ALL = "ConfidentialInfo.findAll";
+        public static final String GET_BATCH = "ConfidentialInfo.getBatch";
+        public static final String DELETE_BATCH = "ConfidentialInfo.deleteBatch";
+    }
+
     public Collection<ConfidentialInfo> findAll() {
-        return entityManager.createNamedQuery("ConfidentialInfo.findAll",
+        return entityManager.createNamedQuery(NamedQueries.FIND_ALL,
                 ConfidentialInfo.class).getResultList();
     }
 
     public Collection<ConfidentialInfo> nextBatch() {
-        return entityManager.createNamedQuery("ConfidentialInfo.getBatch",
+        return entityManager.createNamedQuery(NamedQueries.GET_BATCH,
                 ConfidentialInfo.class).getResultList();
     }
 
@@ -25,7 +31,7 @@ public class ConfidentialInfoRepository extends AbstractRepository {
     public void deleteBatch(Collection<ConfidentialInfo> batch) {
         List<String> ids = batch.stream().map(elem -> elem.getId().toString()).collect(Collectors.toList());
         String batchAsParameter = String.join(", ", ids);
-        entityManager.createNamedQuery("ConfidentialInfo.deleteBatch",
+        entityManager.createNamedQuery(NamedQueries.DELETE_BATCH,
                 ConfidentialInfo.class).setParameter("ids", batchAsParameter).executeUpdate();
     }
 

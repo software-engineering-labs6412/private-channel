@@ -1,6 +1,7 @@
 package org.ssau.privatechannel.firetasks;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpEntity;
@@ -20,11 +21,12 @@ import org.ssau.privatechannel.utils.ThreadsHolder;
 import java.util.Collection;
 import java.util.TimerTask;
 
+@Slf4j
 @Component
 @ComponentScan("org.ssau.privatechannel.config")
 public class StartDataTransferringTask extends TimerTask {
 
-    private final String NEIGHBOUR_ADDRESS = System.getProperty(SystemProperties.NEIGHBOUR_IP);
+    private final String NEIGHBOUR_ADDRESS = System.getProperty(SystemProperties.RECEIVER_IP);
 
     private static final String STANDARD_MASK = "255.255.255.0";
     private static final String SEND_DATA_ENDPOINT = "/api/v1/upload-data";
@@ -55,8 +57,6 @@ public class StartDataTransferringTask extends TimerTask {
         ipService.enableFirewall();
         ipService.deleteRuleByName(FirewallRuleNames.BLOCK_HTTP_PORT);
         ipService.deleteRuleByName(FirewallRuleNames.BLOCK_IP);
-        ipService.unblockHttpPort(FirewallRuleNames.UNBLOCK_HTTP_PORT);
-        ipService.unblockIP(new IpService.IpAddress(NEIGHBOUR_ADDRESS, STANDARD_MASK), FirewallRuleNames.UNBLOCK_IP);
         Thread thread = new Thread(() -> {
             while(true)
 
@@ -71,6 +71,7 @@ public class StartDataTransferringTask extends TimerTask {
 
                 ResponseEntity<String> response = restTemplate.postForEntity(neighbourUrl, entity, String.class);
                 if (response.getStatusCode() != HttpStatus.OK) {
+                    log.error("Could not send data to server: server returned status {}", response.getStatusCode());
                     break;
                 }
             }

@@ -27,7 +27,7 @@ public class ClientController {
     private final RestTemplate restTemplate;
 
     @Autowired
-    ClientController(ConfidentialInfoService confidentialInfoService, RestTemplate restTemplate) {
+    public ClientController(ConfidentialInfoService confidentialInfoService, RestTemplate restTemplate) {
         this.confidentialInfoService = confidentialInfoService;
         this.restTemplate = restTemplate;
     }
@@ -39,7 +39,6 @@ public class ClientController {
         String ipReceiverPort = confidentialInfo.getReceiverIP();
         String httpAddress = String.format(RECEIVER_URL, ipReceiverPort);
         ResponseEntity<String> stringResponseEntity;
-        // TODO Денис, тебе тут надо подумать Internal Server Error
         try {
             stringResponseEntity =
                     restTemplate.postForEntity(httpAddress, confidentialInfoHttpEntity, String.class);

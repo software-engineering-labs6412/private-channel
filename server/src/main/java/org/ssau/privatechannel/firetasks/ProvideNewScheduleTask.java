@@ -19,9 +19,6 @@ import java.util.*;
 @ComponentScan("org.ssau.privatechannel.config")
 public class ProvideNewScheduleTask extends TimerTask {
 
-    private final String CLIENT_1_ADDRESS = System.getProperty(SystemProperties.CLIENT1_IP);
-    private final String CLIENT_2_ADDRESS = System.getProperty(SystemProperties.CLIENT2_IP);
-
     private final ScheduleService scheduleService;
     private final RestTemplate restTemplate;
 
@@ -55,13 +52,13 @@ public class ProvideNewScheduleTask extends TimerTask {
 
         HttpEntity<Schedule> entity = new HttpEntity<>(schedule, headers);
 
-        String clientUrl1 = "http://" + CLIENT_1_ADDRESS + SCHEDULE_ENDPOINT;
+        String clientUrl1 = "http://" + /*TODO: address*/ SCHEDULE_ENDPOINT;
         ResponseEntity<String> response = restTemplate.postForEntity(clientUrl1, entity, String.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Could not provide schedule to client");
         }
 
-        String clientUrl2 = "http://" + CLIENT_2_ADDRESS + SCHEDULE_ENDPOINT;
+        String clientUrl2 = "http://" + /*TODO: address*/ SCHEDULE_ENDPOINT;
         response = restTemplate.postForEntity(clientUrl2, entity, String.class);
         if (response.getStatusCode() != HttpStatus.OK) {
             throw new RuntimeException("Could not provide schedule to client");

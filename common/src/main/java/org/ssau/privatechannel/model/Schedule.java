@@ -7,32 +7,42 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Set;
+
+import static org.ssau.privatechannel.model.Schedule.Queries;
+import static org.ssau.privatechannel.model.Schedule.QueryNames;
 
 @Entity
 @Table(name = Schedule.Tables.SCHEDULE)
-@NamedQuery(name = "Schedule.findAllWithTimeFrames",
-        query = "select distinct s from Schedule s left join fetch s.timeFrames")
+@NamedQuery(name = QueryNames.FIND_ALL_SCHEDULES_WITH_TIMEFRAMES,
+        query = Queries.FIND_ALL_SCHEDULES_WITH_TIMEFRAMES)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Schedule {
-    private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
-    private static final String TIMEZONE = "Europe/Samara";
 
-    public static abstract class Tables{
+    public static abstract class Queries {
+        public static final String FIND_ALL_SCHEDULES_WITH_TIMEFRAMES =
+                "select distinct s from Schedule s left join fetch s.timeFrames";
+    }
+
+    public static abstract class QueryNames {
+        public static final String FIND_ALL_SCHEDULES_WITH_TIMEFRAMES = "Schedule.findAllWithTimeFrames";
+    }
+
+    public static abstract class Tables {
         public static final String SCHEDULE = "schedule";
     }
 
-
-    private static abstract class Columns{
+    private static abstract class Columns {
         public static final String SCHEDULE_ID = "schedule_id";
         public static final String TIME_END = "time_end";
     }
+
+    private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
+    private static final String TIMEZONE = "Europe/Samara";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
