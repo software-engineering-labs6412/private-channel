@@ -25,9 +25,9 @@ public class DbClusterInstaller {
         public static final String EXITED = "Exited";
     }
 
-    private static final Integer DEFAULT_CLIENTS_COUNT = 2;
+    private static final String DEFAULT_CONTAINER_PREFIX = "pc";
 
-    public static void singleInstall(String instance) throws IOException, InvalidInstanceTypeException {
+    public static void singleInstall(String instance) throws IOException, InvalidInstanceTypeException, InterruptedException {
 
         if (!instance.equals(Instances.SERVER) && !instance.equals(Instances.CLIENT)) {
             log.error("Invalid instance type provided during database deployment: {}. Must be {} or {}",
@@ -37,48 +37,22 @@ public class DbClusterInstaller {
 
         String dbUrl = System.getProperty(SystemProperties.DB_URL);
         String dbPort = System.getProperty(SystemProperties.DB_PORT);
+        String containerName = String.format("%s_%s", DEFAULT_CONTAINER_PREFIX, dbPort);
+
         System.setProperty(SystemProperties.DB_URL, String.format(dbUrl, dbPort));
 
         List<String> consoleOutput =
-                CommandRunner.runWithReturn(String.format(Commands.GET_CONTAINER_INFO, instance));
+                CommandRunner.runWithReturn(String.format(Commands.GET_CONTAINER_INFO, containerName));
 
         if (consoleOutput.size() > 1) {
-            log.info("Database container \"{}\" already exist", instance);
+            log.info("Database container \"{}\" already exist", containerName);
             String containerInfo = consoleOutput.get(1);
             runContainerIfStopped(containerInfo);
         } else {
-            log.info("Database container \"{}\" not exist. Starting database installation...", instance);
+            log.info("Database container \"{}\" not exist. Starting database installation...", containerName);
 
             String port = System.getProperty(SystemProperties.DB_PORT);
-            PostgresInstaller.run(instance, port);
-        }
-    }
-
-    public static void run() throws IOException, InvalidInstanceTypeException {
-
-        singleInstall(Instances.SERVER);
-
-        String dbUrl = System.getProperty(SystemProperties.DB_URL);
-        String dbPort = System.getProperty(SystemProperties.DB_PORT);
-        System.setProperty(SystemProperties.DB_URL, String.format(dbUrl, dbPort));
-
-        String port = System.getProperty(SystemProperties.DB_PORT);
-        String currentClientPort = String.valueOf(Integer.parseInt(port));
-        for (int i = 0; i < DEFAULT_CLIENTS_COUNT; ++i) {
-            currentClientPort = String.valueOf(Integer.parseInt(currentClientPort) + 1);
-
-            String currentInstance = String.format("%s_%s", Instances.CLIENT, i);
-            List<String> consoleOutput = CommandRunner.runWithReturn(String.format(Commands.GET_CONTAINER_INFO, currentInstance));
-
-            // Current client db container exists
-            if (consoleOutput.size() > 1) {
-                log.info("Database container \"{}\" already exist", currentInstance);
-                String containerInfo = consoleOutput.get(1);
-                runContainerIfStopped(containerInfo);
-            } else {
-                log.info("Database container \"{}\" not exist. Starting database installation...", currentInstance);
-                PostgresInstaller.run(currentInstance, currentClientPort);
-            }
+            PostgresInstaller.run(containerName, port);
         }
     }
 

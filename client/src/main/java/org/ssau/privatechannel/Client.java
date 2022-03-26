@@ -6,8 +6,6 @@ import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.ui.StartPage;
 import org.ssau.privatechannel.utils.ApplicationInstaller;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import static org.ssau.privatechannel.utils.ApplicationInstaller.Mode;
@@ -29,8 +27,6 @@ public class Client {
         }
 
         try {
-            String dbPort = "7432";
-            System.setProperty(SystemProperties.DB_PORT, dbPort);
             ApplicationInstaller.run(Mode.SINGLE_DB, Instances.CLIENT);
         } catch (Exception e) {
             throw new RuntimeException("Something wrong during client start: ", e);

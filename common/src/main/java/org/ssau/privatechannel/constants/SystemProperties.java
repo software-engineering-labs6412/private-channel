@@ -12,5 +12,6 @@ public class SystemProperties {
             DB_PORT = "db_port",
             MAIN_DB = "main_db",
             DB_INSTANCE = "db_instance",
-            NETWORK = "network";
+            NETWORK = "network",
+            APP_PORT = "app_port";
 }

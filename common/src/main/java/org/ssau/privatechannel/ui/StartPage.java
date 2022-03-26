@@ -28,7 +28,7 @@ public class StartPage {
         public static final Point LOCATION_POINT = new Point(100, 100);
 
         // Grid settings
-        public static final Integer ROWS = 10;
+        public static final Integer ROWS = 11;
         public static final Integer COLUMNS = 2;
         public static final Integer H_GAP = 8;
         public static final Integer V_GAP = 5;
@@ -37,6 +37,9 @@ public class StartPage {
         public static final int MAX_PARAMETER_LENGTH = 50;
         public static final int MIN_PORT = 7000;
         public static final int MAX_PORT = 9000;
+
+        // Default params
+        public static final String DEFAULT_APP_PORT = "8080";
     }
 
     public static void show() throws IOException {
@@ -91,6 +94,11 @@ public class StartPage {
         grid.add(new JLabel("Select instance:"));
         grid.add(instancesComboBox);
 
+        // Setup application port
+        grid.add(new JLabel("Application port"));
+        JTextField appPort = new JTextField(DefaultParams.DEFAULT_APP_PORT);
+        grid.add(appPort);
+
         // DB settings
         grid.add(new JLabel("PG instance name:"));
         JTextField dbInstanceName = new JTextField("private_channel");
@@ -130,6 +138,7 @@ public class StartPage {
         ActionListener listener = ae -> {
 
             // Environment setup...
+            String applicationPort = appPort.getText();
             String databaseInstanceName = dbInstanceName.getText();
             String postgresUser = pgUser.getText();
             String postgresPassword = pgPassword.getText();
@@ -155,6 +164,7 @@ public class StartPage {
             }
 
             try {
+                validatePort(applicationPort);
                 validateParameter(SystemProperties.DB_INSTANCE, databaseInstanceName);
                 validateParameter(SystemProperties.DB_USER, postgresUser);
                 validateParameter(SystemProperties.DB_PASSWORD, postgresPassword);
@@ -164,6 +174,7 @@ public class StartPage {
                 throw new RuntimeException(e);
             }
 
+            System.setProperty(SystemProperties.APP_PORT, applicationPort);
             System.setProperty(SystemProperties.DB_INSTANCE, databaseInstanceName);
             System.setProperty(SystemProperties.DB_USER, postgresUser);
             System.setProperty(SystemProperties.DB_PASSWORD, postgresPassword);

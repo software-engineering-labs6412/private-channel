@@ -12,6 +12,26 @@ public class CommandRunner {
         runWithReturn(command);
     }
 
+    public static List<String> runQuietWithReturn(String command) throws IOException {
+        ProcessBuilder builder = new ProcessBuilder(
+                "cmd.exe", "/c", command);
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
+
+        InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
+        BufferedReader r = new BufferedReader(inputStreamReader);
+
+        List<String> fullConsoleOutput = new ArrayList<>();
+        String line;
+
+        while (true) {
+            line = r.readLine();
+            if (Objects.isNull(line)) { break; }
+            fullConsoleOutput.add(line);
+        }
+        return fullConsoleOutput;
+    }
+
     public static List<String> runWithReturn(String command) throws IOException {
         ProcessBuilder builder = new ProcessBuilder(
                 "cmd.exe", "/c", command);

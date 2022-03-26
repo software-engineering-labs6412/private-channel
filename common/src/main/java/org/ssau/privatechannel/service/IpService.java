@@ -29,7 +29,6 @@ public class IpService {
         public static final String
                 GET_ALL_INTERFACES_INFO = "ipconfig",
                 ENABLE_FIREWALL = "netsh advfirewall set allprofiles state off",
-                DISABLE_FIREWALL = "netsh advfirewall set allprofiles state on",
                 BLOCK_IP_ADDRESS = "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP "
                         + "localport=%s action=block dir=IN remoteip=%s",
                 BLOCK_HTTP_PORT =
@@ -48,15 +47,10 @@ public class IpService {
         log.info("Firewall enabled");
     }
 
-    public void disableFirewall() throws IOException {
-        CommandRunner.run(Commands.DISABLE_FIREWALL);
-        log.info("Disabled enabled");
-    }
-
     public Map<String, String> getAllInternalRegisteredIp() throws IOException {
         Map<String, String> result = new HashMap<>();
 
-        List<String> consoleOutput = CommandRunner.runWithReturn(Commands.GET_ALL_INTERFACES_INFO);
+        List<String> consoleOutput = CommandRunner.runQuietWithReturn(Commands.GET_ALL_INTERFACES_INFO);
         List<String> interfaces = new ArrayList<>();
         Pattern adapterNamePattern = Pattern.compile("[^.]+[A-z0-9-() ]+:");
         for (String resString : consoleOutput) {
