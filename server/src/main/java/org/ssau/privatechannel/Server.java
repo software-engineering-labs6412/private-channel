@@ -2,6 +2,7 @@ package org.ssau.privatechannel;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.ui.StartPage;
 import org.ssau.privatechannel.utils.ApplicationInstaller;
@@ -20,6 +21,7 @@ public class Server {
 
         System.setProperty(SystemProperties.INSTANCE, CURRENT_INSTANCE);
 
+
         try {
             StartPage.show();
         } catch (IOException e) {
@@ -27,7 +29,7 @@ public class Server {
         }
 
         try {
-            ApplicationInstaller.run(Mode.SINGLE_DB, Instances.SERVER);
+            ApplicationInstaller.run(Instances.SERVER);
         } catch (Exception e) {
             throw new RuntimeException("Something wrong during server start: ", e);
         }

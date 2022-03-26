@@ -11,10 +11,13 @@ import org.ssau.privatechannel.repository.ScheduleRepository;
 import java.util.LinkedList;
 
 @RestController
-@RequestMapping(path = "/schedule")
+@RequestMapping(path = ScheduleController.Endpoints.API_V1)
 public class ScheduleController {
 
-    private final String endPoint = "/api/v1";
+    public static abstract class Endpoints {
+        public static final String API_V1 = "/api/v1";
+        private static final String SCHEDULE = "/schedule";
+    }
 
     private final ScheduleRepository scheduleRepository;
 
@@ -23,7 +26,7 @@ public class ScheduleController {
         this.scheduleRepository = scheduleRepository;
     }
 
-    @PostMapping(value = endPoint, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = Endpoints.SCHEDULE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Schedule sendSchedule() {
         LinkedList<Schedule> list = new LinkedList<>(scheduleRepository.findAll());
         return list.remove(0);

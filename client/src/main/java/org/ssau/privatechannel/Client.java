@@ -27,7 +27,7 @@ public class Client {
         }
 
         try {
-            ApplicationInstaller.run(Mode.SINGLE_DB, Instances.CLIENT);
+            ApplicationInstaller.run(Instances.CLIENT);
         } catch (Exception e) {
             throw new RuntimeException("Something wrong during client start: ", e);
         }

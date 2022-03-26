@@ -14,7 +14,7 @@ import static org.ssau.privatechannel.utils.DbClusterInstaller.Instances;
 @Slf4j
 public class ApplicationInstaller {
 
-    public static void run(String mode, String instance) throws IOException, InterruptedException,
+    public static void run(String instance) throws IOException, InterruptedException,
             DockerMissingException, InvalidAppInstallationModeException, InvalidInstanceTypeException {
         DockerInstaller.run();
 
@@ -30,19 +30,6 @@ public class ApplicationInstaller {
                     instance, Instances.SERVER, Instances.CLIENT);
             throw new InvalidInstanceTypeException("Invalid instance type provided during application installation");
         }
-    }
-
-    @Deprecated // TODO (tmp): must be deleted before release!
-    private static String debugModeDialogWindow() {
-        JFrame jFrame = new JFrame();
-        int result = JOptionPane.showConfirmDialog(jFrame,
-                "Click YES/OK for installing 3 databases (server, client1 and client2). " +
-                        "Or click No for installing only related DB instance (server/client)");
-
-        if (result == 0) {
-            return Mode.CLUSTER_DB;
-        }
-        return Mode.SINGLE_DB;
     }
 
     public static abstract class Mode {

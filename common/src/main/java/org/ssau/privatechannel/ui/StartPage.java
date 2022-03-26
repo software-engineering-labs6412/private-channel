@@ -1,8 +1,10 @@
 package org.ssau.privatechannel.ui;
 
+import lombok.extern.slf4j.Slf4j;
 import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.exception.ValidationException;
 import org.ssau.privatechannel.service.IpService;
+import org.ssau.privatechannel.utils.ClientsHolder;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,13 +12,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class StartPage {
 
     private static abstract class DefaultParams {
@@ -133,10 +134,80 @@ public class StartPage {
             grid.add(new JLabel("Receiver ip:"));
             grid.add(receiverIp);
         }
+
         JButton startButton = new JButton("Start app");
         grid.add(startButton);
 
-        settingsWindow.getContentPane().add(grid);
+        // =====================================================
+        JScrollPane clientsIps = null;
+        JTextField currentClientIp = new JTextField();
+        JTextArea clientsIpsTextArea = new JTextArea();
+        currentClientIp.setToolTipText("Write here IP of client...");
+        currentClientIp.setColumns(15);
+        if (instances[0].equals(Instances.SERVER)) {
+
+            JPanel clientsPanel = new JPanel();
+            GridBagLayout clientsLayout = new GridBagLayout();
+
+            clientsPanel.setLayout(clientsLayout);
+
+            clientsIpsTextArea.setRows(10);
+            clientsIpsTextArea.setColumns(10);
+            clientsIps = new JScrollPane(clientsIpsTextArea,
+                    JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            clientsIpsTextArea.setEditable(false);
+            clientsPanel.add(new JLabel("Clients IPs for connection  "));
+            clientsPanel.add(clientsIps);
+            clientsPanel.add(currentClientIp);
+
+            JButton addClientButton = new JButton("Add current ip as client");
+            Set<String> uniqueIps = new HashSet<>();
+            ActionListener listener = ae -> {
+                String currentIp = currentClientIp.getText();
+
+                if (uniqueIps.contains(currentIp)) {
+                    return;
+                }
+
+                String[] ipAndPort = currentIp.split(":");
+                if (ipAndPort.length != 2) {
+                    String errorMessage = "Invalid client address: " + currentIp;
+                    showErrorDialog(errorMessage);
+                    throw new RuntimeException(errorMessage);
+                }
+
+                try {
+                    validateIp("Client IP", ipAndPort[0]);
+                } catch (ValidationException e) {
+                    String errorMessage = "Invalid client ip address: " + ipAndPort[0];
+                    showErrorDialog(errorMessage);
+                    throw new RuntimeException(errorMessage);
+                }
+
+                try {
+                    validatePort(ipAndPort[1]);
+                } catch (ValidationException e) {
+                    String errorMessage = "Invalid port for client address: " + ipAndPort[1];
+                    showErrorDialog(errorMessage);
+                    throw new RuntimeException(errorMessage);
+                }
+
+                uniqueIps.add(currentIp);
+
+                String currentText = clientsIpsTextArea.getText();
+                clientsIpsTextArea.setText(String.format("%s\n%s", currentText, currentClientIp.getText()));
+            };
+            addClientButton.addActionListener(listener);
+            clientsPanel.add(addClientButton);
+
+            JTabbedPane pane = new JTabbedPane();
+            pane.addTab("Main settings", grid);
+            pane.addTab("Clients", clientsPanel);
+            settingsWindow.getContentPane().add(pane);
+        } else {
+            settingsWindow.getContentPane().add(grid);
+        }
+
         settingsWindow.pack();
 
         ActionListener listener = ae -> {
@@ -165,6 +236,18 @@ public class StartPage {
 
                 System.setProperty(SystemProperties.SERVER_IP, serverIpAddress);
                 System.setProperty(SystemProperties.RECEIVER_IP, receiverIpAddress);
+            } else {
+                try {
+                    String clients = clientsIpsTextArea.getText().substring(1);
+                    ClientsHolder.addAllClients(clients.split("\n"));
+                }
+                catch (Exception e) {
+                    String errorMessage =
+                            "Something wrong during parsing clients ips. " +
+                                    "May be you forgot to add at least one client IP?";
+                    showErrorDialog(errorMessage);
+                    throw e;
+                }
             }
 
             try {
@@ -211,12 +294,15 @@ public class StartPage {
 
     private static void validateParameter(String parameterName, String parameter) throws ValidationException {
         if (parameter.isBlank() || parameter.isEmpty()) {
-            throw new ValidationException(String.format("Parameter %s not specified", parameterName));
+            String errorMessage = String.format("Parameter %s not specified", parameterName);
+            showErrorDialog(errorMessage);
+            throw new ValidationException(errorMessage);
         }
         if (parameter.length() > DefaultParams.MAX_PARAMETER_LENGTH) {
-            throw new ValidationException(
-                    String.format("Parameter is too long. Must be not bigger than %s",
-                            DefaultParams.MAX_PARAMETER_LENGTH));
+            String errorMessage = String.format("Parameter is too long. Must be not bigger than %s",
+                    DefaultParams.MAX_PARAMETER_LENGTH);
+            showErrorDialog(errorMessage);
+            throw new ValidationException(errorMessage);
         }
     }
 
@@ -227,22 +313,28 @@ public class StartPage {
         String[] parts = ip.split("\\.");
 
         if (parts.length == 0) {
-            throw new ValidationException(
-                    String.format("Invalid ip structure. Must be [0-255].[0-255].[0-255].[0-255]. Got: %s", ip));
+            String errorMessage =
+                    String.format("Invalid ip structure. Must be [0-255].[0-255].[0-255].[0-255]. Got: %s", ip);
+            showErrorDialog(errorMessage);
+            throw new ValidationException(errorMessage);
         }
 
         try {
             for (String part : parts) {
                 int parsed = Integer.parseInt(part);
                 if (parsed < 0 || parsed > 255) {
-                    throw new ValidationException (
-                            String.format("Invalid part of ip address. Got ip: %s; Invalid part: %s", ip, part));
+                    String errorMessage =
+                            String.format("Invalid part of ip address. Got ip: %s; Invalid part: %s", ip, part);
+                    showErrorDialog(errorMessage);
+                    throw new ValidationException(errorMessage);
                 }
             }
         }
         catch (NumberFormatException e) {
-            throw new ValidationException (
-                    String.format("Invalid part of ip address. Ip must include only digits and dots. Got ip: %s", ip));
+            String errorMessage =
+                    String.format("Invalid part of ip address. Ip must include only digits and dots. Got ip: %s", ip);
+            showErrorDialog(errorMessage);
+            throw new ValidationException(errorMessage);
         }
     }
 
@@ -253,13 +345,21 @@ public class StartPage {
         try {
             int parsed = Integer.parseInt(port);
             if (parsed < DefaultParams.MIN_PORT || parsed > DefaultParams.MAX_PORT) {
-                throw new ValidationException (
-                        String.format("Invalid port. Must be in range [%s-%s]",
-                                DefaultParams.MIN_PORT, DefaultParams.MAX_PORT));
+                String errorMessage = String.format("Invalid port. Must be in range [%s-%s]",
+                                DefaultParams.MIN_PORT, DefaultParams.MAX_PORT);
+                showErrorDialog(errorMessage);
+                throw new ValidationException(errorMessage);
             }
         } catch (NumberFormatException e) {
-            throw new ValidationException (
-                    String.format("Invalid port. Port must include only digits. Got: %s", port));
+            String errorMessage = String.format("Invalid port. Port must include only digits. Got: %s", port);
+            showErrorDialog(errorMessage);
+            throw new ValidationException(errorMessage);
         }
+    }
+
+    private static void showErrorDialog(String errorMessage) {
+        log.error(errorMessage);
+        JFrame jFrame = new JFrame();
+        JOptionPane.showMessageDialog(jFrame, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

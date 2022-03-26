@@ -16,10 +16,13 @@ import org.ssau.privatechannel.service.ConfidentialInfoService;
 
 // get data from client
 @RestController
-@RequestMapping(value = "/api/v1")
+@RequestMapping(value = ClientController.Endpoints.API_V1)
 public class ClientController {
 
-    private final String END_POINT = "/upload-data";
+    public static abstract class Endpoints {
+        public static final String API_V1 = "/api/v1";
+        private static final String UPLOAD_DATA = "/upload-data";
+    }
 
     private static final String RECEIVER_URL = "http://%s/api/v1/upload-data";
 
@@ -32,7 +35,7 @@ public class ClientController {
         this.restTemplate = restTemplate;
     }
 
-    @PostMapping(value = END_POINT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = Endpoints.UPLOAD_DATA, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void uploadData(@RequestBody ConfidentialInfo confidentialInfo) {
 
         HttpEntity<ConfidentialInfo> confidentialInfoHttpEntity = new HttpEntity<>(confidentialInfo);
