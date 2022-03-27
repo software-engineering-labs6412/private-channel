@@ -19,7 +19,6 @@ import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.ThreadsHolder;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.TimerTask;
 
 @Slf4j

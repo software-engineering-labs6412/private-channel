@@ -15,26 +15,26 @@ import static org.ssau.privatechannel.model.ConfidentialInfo.QueryNames;
 @NamedQuery(
         name = QueryNames.GET_ALL_INFO,
         query = Queries.GET_ALL_INFO)
+@NamedQuery(
+        name = QueryNames.GET_ALL_INFO_BY_IDS,
+        query = Queries.GET_ALL_INFO_BY_IDS)
 @NamedNativeQuery(
         name = QueryNames.GET_BATCH_INFO,
         query = Queries.GET_BATCH_INFO,
         resultClass = ConfidentialInfo.class)
-@NamedQuery(
-        name = QueryNames.DELETE_BATCH,
-        query = Queries.DELETE_BATCH)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class ConfidentialInfo {
 
     public static abstract class Queries {
         public static final String GET_ALL_INFO = "select info from ConfidentialInfo info";
+        public static final String GET_ALL_INFO_BY_IDS = "select info from ConfidentialInfo info where info.id in (:ids)";
         public static final String GET_BATCH_INFO = "select inf.record_id, inf.text_data, inf.receiver_ip, inf.sender_ip from conf_info inf limit 10";
-        public static final String DELETE_BATCH = "delete from ConfidentialInfo info where info.id in (:ids)";
     }
 
     public static abstract class QueryNames {
         public static final String GET_ALL_INFO = "ConfidentialInfo.findAll";
+        public static final String GET_ALL_INFO_BY_IDS = "ConfidentialInfo.findAllByIds";
         public static final String GET_BATCH_INFO = "ConfidentialInfo.getBatch";
-        public static final String DELETE_BATCH = "ConfidentialInfo.deleteBatch";
     }
 
     public static abstract class Tables {
@@ -52,7 +52,6 @@ public class ConfidentialInfo {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.RECORD_ID, nullable = false)
     private Long id;
 

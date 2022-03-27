@@ -1,7 +1,7 @@
 package org.ssau.privatechannel.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -9,14 +9,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestTemplate;
+import org.ssau.privatechannel.exception.BadRequestException;
+import org.ssau.privatechannel.exception.InternalServerErrorException;
+import org.ssau.privatechannel.exception.NotFoundException;
 import org.ssau.privatechannel.model.ConfidentialInfo;
-import org.ssau.privatechannel.service.ConfidentialInfoService;
+import org.ssau.privatechannel.service.DataManagementService;
 
 import java.util.List;
 
-// get data from client
+@Slf4j
 @RestController
 @RequestMapping(value = ServerController.Endpoints.API_V1)
 public class ServerController {
@@ -26,51 +27,25 @@ public class ServerController {
         private static final String UPLOAD_DATA = "/upload-data";
     }
 
-    private static final String RECEIVER_URL = "http://%s/api/v1/client/upload-data";
-
-    private final ConfidentialInfoService confidentialInfoService;
-    private final RestTemplate restTemplate;
+    private final DataManagementService dataManagementService;
 
     @Autowired
-    public ServerController(ConfidentialInfoService confidentialInfoService, RestTemplate restTemplate) {
-        this.confidentialInfoService = confidentialInfoService;
-        this.restTemplate = restTemplate;
+    public ServerController(DataManagementService dataManagementService) {
+        this.dataManagementService = dataManagementService;
     }
 
     @PostMapping(value = Endpoints.UPLOAD_DATA, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void uploadData(@RequestBody List<ConfidentialInfo> confidentialInfo) {
-
-        HttpEntity<List<ConfidentialInfo>> confidentialInfoHttpEntity = new HttpEntity<>(confidentialInfo);
-        String ipReceiverPort = confidentialInfo.get(0).getReceiverIP();
-        String httpAddress = String.format(RECEIVER_URL, ipReceiverPort);
-        ResponseEntity<String> stringResponseEntity;
+    public ResponseEntity<?> uploadData(@RequestBody List<ConfidentialInfo> confidentialInfo) {
         try {
-            stringResponseEntity =
-                    restTemplate.postForEntity(httpAddress, confidentialInfoHttpEntity, String.class);
+            dataManagementService.tryToSendDataToReceiver(confidentialInfo);
+        } catch (BadRequestException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        } catch (NotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (InternalServerErrorException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        catch (ResourceAccessException e){
-            e.printStackTrace();
-            confidentialInfoService.addAll(confidentialInfo);
-            // TODO заскедулить попытку передать сообщение снова ( Димасик)
-            throw e;
-        }
-        boolean isStatusSuccessful = stringResponseEntity.getStatusCode().is2xxSuccessful();
-        if (!isStatusSuccessful) {
-            confidentialInfoService.addAll(confidentialInfo);
-            // TODO кидать исключения
-            if (stringResponseEntity.getStatusCode().equals(HttpStatus.BAD_REQUEST)) // 400
-            {
-                System.out.println("400");
-            }
-            if (stringResponseEntity.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
-                System.out.println("not found");
-            }
-            if (stringResponseEntity.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                System.out.println("INTERNAL_SERVER_ERROR");
-            }
-
-        }
-
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

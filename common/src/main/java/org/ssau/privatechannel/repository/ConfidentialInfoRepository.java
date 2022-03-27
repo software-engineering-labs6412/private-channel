@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,14 +14,24 @@ public class ConfidentialInfoRepository extends AbstractRepository {
 
     private static class NamedQueries {
         public static final String FIND_ALL = "ConfidentialInfo.findAll";
+        public static final String FIND_ALL_BY_IDS = "ConfidentialInfo.findAllByIds";
         public static final String GET_BATCH = "ConfidentialInfo.getBatch";
-        public static final String DELETE_BATCH = "ConfidentialInfo.deleteBatch";
+    }
+
+    private static class Queries {
+        public static final String DELETE_BATCH = "delete from conf_info where record_id in (:ids)";
     }
 
     public Collection<ConfidentialInfo> findAll() {
         return entityManager.createNamedQuery(NamedQueries.FIND_ALL,
                 ConfidentialInfo.class).getResultList();
     }
+
+    public Collection<ConfidentialInfo> findAllByIds(List<Long> ids) {
+        return entityManager.createNamedQuery(NamedQueries.FIND_ALL_BY_IDS,
+                ConfidentialInfo.class).setParameter("ids", ids).getResultList();
+    }
+
 
     public Collection<ConfidentialInfo> nextBatch() {
         return entityManager.createNamedQuery(NamedQueries.GET_BATCH,
@@ -29,10 +40,17 @@ public class ConfidentialInfoRepository extends AbstractRepository {
 
     @Transactional
     public void deleteBatch(Collection<ConfidentialInfo> batch) {
-        List<String> ids = batch.stream().map(elem -> elem.getId().toString()).collect(Collectors.toList());
-        String batchAsParameter = String.join(", ", ids);
-        entityManager.createNamedQuery(NamedQueries.DELETE_BATCH,
-                ConfidentialInfo.class).setParameter("ids", batchAsParameter).executeUpdate();
+        List<Long> ids = new ArrayList<>();
+
+        for (ConfidentialInfo record :batch) {
+            ids.add(record.getId());
+        }
+
+        Collection<ConfidentialInfo> allByIds = findAllByIds(ids);
+
+        for (ConfidentialInfo currentRecord : allByIds) {
+            entityManager.remove(currentRecord);
+        }
     }
 
     @Transactional

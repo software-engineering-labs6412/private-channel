@@ -22,6 +22,10 @@ public class ConfidentialInfoService {
         return infoRepository.findAll();
     }
 
+    public Collection<ConfidentialInfo> findAllByIds(List<Long> ids) {
+        return infoRepository.findAllByIds(ids);
+    }
+
     public Collection<ConfidentialInfo> nextBatch() {
         return infoRepository.nextBatch();
     }
