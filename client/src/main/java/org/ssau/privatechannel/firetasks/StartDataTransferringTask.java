@@ -2,13 +2,10 @@ package org.ssau.privatechannel.firetasks;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.constants.FirewallRuleNames;
@@ -26,8 +23,6 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@Component
-@ComponentScan("org.ssau.privatechannel.config")
 public class StartDataTransferringTask extends TimerTask {
 
     public static final String THREAD_NAME = "DataTransferringFromClient";
@@ -44,7 +39,6 @@ public class StartDataTransferringTask extends TimerTask {
     private static final Integer WAIT_TIME_FOR_NEW_INFO_SECONDS = 10;
     private static final Integer WAIT_TIMEOUT_SECONDS = 60;
 
-    @Autowired
     public StartDataTransferringTask(ConfidentialInfoService infoService,
                                      RestTemplate restTemplate,
                                      IpService ipService,

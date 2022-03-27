@@ -1,9 +1,6 @@
 package org.ssau.privatechannel.firetasks;
 
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Component;
 import org.ssau.privatechannel.constants.FirewallRuleNames;
 import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.service.IpService;
@@ -14,14 +11,11 @@ import org.ssau.privatechannel.utils.ThreadsHolder;
 
 import java.util.TimerTask;
 
-@Component
-@ComponentScan("org.ssau.privatechannel.config")
 public class EndDataTransferringTask extends TimerTask {
 
     private final IpService ipService;
     private final NetworkAdapterService networkAdapterService;
 
-    @Autowired
     public EndDataTransferringTask(IpService ipService, NetworkAdapterService networkAdapterService) {
         this.ipService = ipService;
         this.networkAdapterService = networkAdapterService;

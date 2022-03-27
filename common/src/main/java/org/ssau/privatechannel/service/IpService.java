@@ -28,7 +28,7 @@ public class IpService {
 
         List<String> consoleOutput = CommandRunner.runQuietWithReturn(Commands.GET_ALL_INTERFACES_INFO);
         List<String> interfaces = new ArrayList<>();
-        Pattern adapterNamePattern = Pattern.compile("[^.]+[A-z0-9-() ]+:");
+        Pattern adapterNamePattern = Pattern.compile("[^.]+[A-z\\d-() ]+:");
         for (String resString : consoleOutput) {
 
             boolean isInterfaceFound;
@@ -43,7 +43,7 @@ public class IpService {
 
             Matcher ipv4Matcher = Pattern.compile("IPv4-").matcher(resString);
             if (ipv4Matcher.find()) {
-                Matcher matcher = Pattern.compile("[0-9]+.[0-9]+.[0-9]+.[0-9]").matcher(resString);
+                Matcher matcher = Pattern.compile("[0-9]+.[0-9]+.[0-9]+.[0-9]+").matcher(resString);
                 boolean isIpV4Found = matcher.find();
 
                 if (isIpV4Found) {

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -19,12 +20,16 @@ import static org.ssau.privatechannel.model.Schedule.QueryNames;
 @Table(name = Schedule.Tables.SCHEDULE)
 @NamedQuery(name = QueryNames.FIND_ALL,
         query = Queries.FIND_ALL)
+@NamedQuery(name = QueryNames.FIND_FIRST_BY_IP,
+        query = Queries.FIND_FIRST_BY_IP)
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class Schedule {
 
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";
+
     @Id
     @Column(name = Columns.SCHEDULE_ID, nullable = false)
     private Long id;
@@ -37,6 +42,9 @@ public class Schedule {
 
     @OneToMany(mappedBy = Tables.SCHEDULE, orphanRemoval = true, cascade = CascadeType.MERGE)
     private List<TimeFrame> timeFrames;
+
+    @Column(name = Columns.CLIENT_IP)
+    private String clientIp;
 
     public LocalDateTime getTimeEnd() {
         return timeEnd;
@@ -62,13 +70,24 @@ public class Schedule {
         this.id = id;
     }
 
+    public String getClientIp() {
+        return clientIp;
+    }
+
+    public void setClientIp(String clientIp) {
+        this.clientIp = clientIp;
+    }
+
     public static abstract class Queries {
         public static final String FIND_ALL =
                 "select distinct s from Schedule s";
+        public static final String FIND_FIRST_BY_IP =
+                "select distinct s from Schedule s where s.clientIp = :ip";
     }
 
     public static abstract class QueryNames {
         public static final String FIND_ALL = "Schedule.findAll";
+        public static final String FIND_FIRST_BY_IP = "Schedule.findFirstByIp";
     }
 
     public static abstract class Tables {
@@ -78,5 +97,6 @@ public class Schedule {
     public static abstract class Columns {
         public static final String SCHEDULE_ID = "schedule_id";
         public static final String TIME_END = "time_end";
+        public static final String CLIENT_IP = "client_ip";
     }
 }

@@ -6,4 +6,5 @@ public interface Endpoints {
     String UPLOAD_DATA = "/upload-data";
     String SCHEDULES = "/schedules";
     String SCHEDULE = "/schedule";
+    String GET_NEW_SCHEDULE = "/getNewSchedule";
 }

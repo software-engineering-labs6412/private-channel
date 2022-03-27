@@ -4,13 +4,14 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.ssau.privatechannel.model.TimeFrame;
 
-import java.util.Collection;
+import java.util.List;
 
 @Repository
 public class TimeFrameRepository extends AbstractRepository {
 
-    public Collection<TimeFrame> findAll() {
-        return entityManager.createNamedQuery(NamedQueries.FIND_ALL_WITH_SCHEDULE, TimeFrame.class).getResultList();
+    public List<TimeFrame> findAllForSchedule(Long scheduleId) {
+        return entityManager.createNamedQuery(NamedQueries.FIND_ALL_FOR_SCHEDULE, TimeFrame.class)
+                .setParameter(QueryParams.SCHEDULE_ID, scheduleId).getResultList();
     }
 
     @Transactional
@@ -29,7 +30,11 @@ public class TimeFrameRepository extends AbstractRepository {
     }
 
     private static class NamedQueries {
-        public static final String FIND_ALL_WITH_SCHEDULE = "TimeFrame.findAllWithSchedule";
+        public static final String FIND_ALL_FOR_SCHEDULE = "TimeFrame.findAllWithSchedule";
+    }
+
+    private static class QueryParams {
+        public static final String SCHEDULE_ID = "schedule_id";
     }
 
 }

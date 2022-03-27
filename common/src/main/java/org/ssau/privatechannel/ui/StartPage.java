@@ -227,7 +227,7 @@ public class StartPage {
 
             SystemContext.setProperty(SystemProperties.NETWORK, network.split("=")[0]);
 
-            Matcher matcher = Pattern.compile("[0-9]+.[0-9]+.[0-9]+.[0-9]").matcher(network);
+            Matcher matcher = Pattern.compile("[0-9]+.[0-9]+.[0-9]+.[0-9]+").matcher(network);
             boolean isNetworkProvided = matcher.find();
 
             if (isNetworkProvided) {
@@ -242,6 +242,7 @@ public class StartPage {
                 SystemContext.setProperty(SystemProperties.CURRENT_IP, currentIp);
             }
 
+            SystemContext.printAllProperties();
             settingsWindow.setVisible(false);
         };
 

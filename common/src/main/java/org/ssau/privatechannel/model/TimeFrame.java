@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -16,9 +17,10 @@ import static org.ssau.privatechannel.model.TimeFrame.QueryNames;
 
 @Entity
 @Table(name = TimeFrame.Tables.TIME_FRAME)
-@NamedQuery(name = QueryNames.SELECT_ALL_TIMEFRAMES, query = Queries.SELECT_ALL_TIMEFRAMES)
+@NamedNativeQuery(name = QueryNames.SELECT_TIMEFRAMES_FOR_SCHEDULE, query = Queries.SELECT_TIMEFRAMES_FOR_SCHEDULE)
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class TimeFrame {
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";
@@ -41,6 +43,15 @@ public class TimeFrame {
     @ManyToOne
     @JoinColumn(name = Columns.SCHEDULE_ID, referencedColumnName = Schedule.Columns.SCHEDULE_ID)
     private Schedule schedule;
+
+    public boolean isIntersectsWith(TimeFrame timeFrame) {
+        return isMomentInTimeFrame(timeFrame.startTime) || isMomentInTimeFrame(timeFrame.endTime) ||
+                timeFrame.isMomentInTimeFrame(startTime) || timeFrame.isMomentInTimeFrame(endTime);
+    }
+
+    public boolean isMomentInTimeFrame(LocalDateTime moment) {
+        return moment.isAfter(startTime) && moment.isBefore(endTime);
+    }
 
     public Schedule getSchedule() {
         return schedule;
@@ -75,11 +86,12 @@ public class TimeFrame {
     }
 
     public static abstract class Queries {
-        public static final String SELECT_ALL_TIMEFRAMES = "select distinct t from TimeFrame t left join fetch t.schedule";
+        public static final String SELECT_TIMEFRAMES_FOR_SCHEDULE =
+                "select * from time_frame where schedule_id = :schedule_id";
     }
 
     public static abstract class QueryNames {
-        public static final String SELECT_ALL_TIMEFRAMES = "TimeFrame.findAllWithSchedule";
+        public static final String SELECT_TIMEFRAMES_FOR_SCHEDULE = "TimeFrame.findAllWithSchedule";
     }
 
     public static abstract class Tables {
