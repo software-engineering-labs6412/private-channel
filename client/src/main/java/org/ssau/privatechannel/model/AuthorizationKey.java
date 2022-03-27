@@ -10,7 +10,6 @@ import javax.persistence.*;
 public class AuthorizationKey {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = AuthorizationKey.Columns.ID, nullable = false)
     private Long id;
     @Column(name = AuthorizationKey.Columns.HASH, nullable = false)

@@ -16,12 +16,14 @@ import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.IpService;
+import org.ssau.privatechannel.service.NetworkAdapterService;
 import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.SystemContext;
 import org.ssau.privatechannel.utils.ThreadsHolder;
 
 import java.util.Collection;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -31,31 +33,62 @@ public class StartDataTransferringTask extends TimerTask {
     public static final String THREAD_NAME = "DataTransferringFromClient";
     private static final String SEND_DATA_ENDPOINT = Endpoints.API_V1_SERVER + Endpoints.UPLOAD_DATA;
     private static final String SCHEMA = "http://";
+
     private final ConfidentialInfoService infoService;
     private final IpService ipService;
+    private final NetworkAdapterService networkAdapterService;
     private final RestTemplate restTemplate;
+
     private String receiverIp;
+
+    private static final Integer WAIT_TIME_FOR_NEW_INFO_SECONDS = 10;
+    private static final Integer WAIT_TIMEOUT_SECONDS = 60;
 
     @Autowired
     public StartDataTransferringTask(ConfidentialInfoService infoService,
                                      RestTemplate restTemplate,
-                                     IpService ipService) {
+                                     IpService ipService,
+                                     NetworkAdapterService networkAdapterService) {
         this.infoService = infoService;
         this.restTemplate = restTemplate;
         this.ipService = ipService;
+        this.networkAdapterService = networkAdapterService;
     }
 
     @SneakyThrows
     @Override
     public void run() {
-        ipService.enableFirewall();
-        ipService.deleteRuleByName(FirewallRuleNames.BLOCK_HTTP_PORT);
         ipService.deleteRuleByName(FirewallRuleNames.BLOCK_IP);
+        String currentInterface = SystemContext.getProperty(SystemProperties.NETWORK);
+        networkAdapterService.disableInterfaces(currentInterface);
 
         String senderIp = SystemContext.getProperty(SystemProperties.CURRENT_IP);
         Thread thread = new Thread(() -> {
+            log.info("Data transferring started between clients with ips {} and {}", senderIp, receiverIp);
+            int currentWaitTime = 0;
             while (true) {
                 Collection<ConfidentialInfo> batch = infoService.nextBatch();
+
+                if (batch.isEmpty()) {
+
+                    if (currentWaitTime >= WAIT_TIMEOUT_SECONDS) {
+                        log.info("No more information from client with IP={}. Exiting program", senderIp);
+                        log.info("Transferring data between clients with ips {} and {} completed", senderIp, receiverIp);
+                        System.exit(0);
+                    }
+
+                    log.info("All information sent. Waiting for new info...");
+                    currentWaitTime += WAIT_TIME_FOR_NEW_INFO_SECONDS;
+                    try {
+                        Thread.sleep(TimeUnit.SECONDS.toMillis(WAIT_TIME_FOR_NEW_INFO_SECONDS));
+                        continue;
+                    } catch (InterruptedException e) {
+                        log.error("Interrupting thread. Reason: {}", e.getMessage());
+                        break;
+                    }
+                }
+
+                currentWaitTime = 0;
 
                 for (ConfidentialInfo next : batch) {
                     next.setSenderIP(senderIp);
@@ -74,6 +107,7 @@ public class StartDataTransferringTask extends TimerTask {
                     log.error("Could not send data to server: server returned status {}", response.getStatusCode());
                     break;
                 }
+                infoService.deleteBatch(batch);
             }
         });
         ThreadsHolder.addAndRunThread(THREAD_NAME, thread);

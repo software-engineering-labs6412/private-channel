@@ -27,7 +27,7 @@ public class ConfidentialDataController {
 
     @PostMapping(value = Endpoints.UPLOAD_DATA, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void uploadData(@RequestBody List<ReceivedInformation> confidentialInfo) {
-        log.debug("Received data [from IP={}]: {}",
+        log.info("Received data [from IP={}]: {}",
                 confidentialInfo.get(0).getSenderIP(), confidentialInfo);
         receivedInfoService.addAll(confidentialInfo);
     }

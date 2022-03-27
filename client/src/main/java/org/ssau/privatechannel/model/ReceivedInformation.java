@@ -1,6 +1,7 @@
 package org.ssau.privatechannel.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -20,10 +21,10 @@ import static org.ssau.privatechannel.model.ReceivedInformation.QueryNames;
         query = Queries.GET_BATCH_INFO,
         resultClass = ReceivedInformation.class)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+@ToString
 public class ReceivedInformation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.RECORD_ID, nullable = false)
     private Long id;
     @Type(type = "jsonb")

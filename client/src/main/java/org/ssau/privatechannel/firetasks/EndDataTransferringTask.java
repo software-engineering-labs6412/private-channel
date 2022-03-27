@@ -18,8 +18,6 @@ import java.util.TimerTask;
 @ComponentScan("org.ssau.privatechannel.config")
 public class EndDataTransferringTask extends TimerTask {
 
-    private final String NEIGHBOUR_ADDRESS = SystemContext.getProperty(SystemProperties.RECEIVER_IP);
-
     private final IpService ipService;
     private final NetworkAdapterService networkAdapterService;
 
@@ -32,12 +30,13 @@ public class EndDataTransferringTask extends TimerTask {
     @SneakyThrows
     @Override
     public void run() {
-        ipService.enableFirewall();
-        ipService.deleteRuleByName(FirewallRuleNames.UNBLOCK_HTTP_PORT);
         ipService.deleteRuleByName(FirewallRuleNames.UNBLOCK_IP);
-        ipService.blockHttpPort(FirewallRuleNames.BLOCK_HTTP_PORT);
-        ipService.blockIP(new IpService.IpAddress(NEIGHBOUR_ADDRESS), FirewallRuleNames.BLOCK_IP);
-        ipService.blockIP(new IpService.IpAddress(NEIGHBOUR_ADDRESS), FirewallRuleNames.BLOCK_IP);
+
+        String serverIp = SystemContext.getProperty(SystemProperties.SERVER_IP);
+        String receiverIp = SystemContext.getProperty(SystemProperties.RECEIVER_IP);
+
+        ipService.blockIP(new IpService.IpAddress(serverIp), FirewallRuleNames.BLOCK_IP);
+        ipService.blockIP(new IpService.IpAddress(receiverIp), FirewallRuleNames.BLOCK_IP);
 
         String networkInterface = SystemContext.getProperty(SystemProperties.NETWORK);
         networkAdapterService.disableInterfaces(networkInterface);

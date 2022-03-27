@@ -22,6 +22,8 @@ import java.util.Properties;
 @EnableTransactionManagement
 public class DataSourceConfig {
 
+    private static final String POSTGRES_DIALECT = "org.hibernate.dialect.PostgreSQL94Dialect";
+
     @Bean
     public DataSource getDataSource() {
 
@@ -39,10 +41,10 @@ public class DataSourceConfig {
     @Bean
     public Properties hibernateProperties() {
         Properties hibernateProp = new Properties();
-        hibernateProp.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQL94Dialect");
-        hibernateProp.put("hibernate.show_sql", "true");
-        hibernateProp.put("hibernate.hbm2ddl.auto", "update");
-        hibernateProp.put("hibernate.format_sql", "true");
+        hibernateProp.put(HibernateProps.DIALECT, POSTGRES_DIALECT);
+        hibernateProp.put(HibernateProps.SHOW_SQL, Boolean.FALSE.toString());
+        hibernateProp.put(HibernateProps.AUTO_DDL, "update");
+        hibernateProp.put(HibernateProps.SQL_FORMAT, Boolean.TRUE.toString());
         return hibernateProp;
     }
 
@@ -66,5 +68,12 @@ public class DataSourceConfig {
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
         factoryBean.afterPropertiesSet();
         return factoryBean.getNativeEntityManagerFactory();
+    }
+
+    private static abstract class HibernateProps {
+        public static final String DIALECT = "hibernate.dialect";
+        public static final String SHOW_SQL = "hibernate.show_sql";
+        public static final String AUTO_DDL = "hibernate.hbm2ddl.auto";
+        public static final String SQL_FORMAT = "hibernate.format_sql";
     }
 }

@@ -42,7 +42,7 @@ public class DataSourceConfig {
     public Properties hibernateProperties() {
         Properties hibernateProp = new Properties();
         hibernateProp.put(HibernateProps.DIALECT, POSTGRES_DIALECT);
-        hibernateProp.put(HibernateProps.SHOW_SQL, Boolean.TRUE.toString());
+        hibernateProp.put(HibernateProps.SHOW_SQL, Boolean.FALSE.toString());
         hibernateProp.put(HibernateProps.AUTO_DDL, "update");
         hibernateProp.put(HibernateProps.SQL_FORMAT, Boolean.TRUE.toString());
         return hibernateProp;
