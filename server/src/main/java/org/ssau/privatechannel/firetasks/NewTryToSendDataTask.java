@@ -7,6 +7,7 @@ import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.utils.KeyHolder;
+import org.ssau.privatechannel.utils.SystemContext;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,10 +21,6 @@ public class NewTryToSendDataTask extends TimerTask {
     private List<Long> ids;
 
     private String serverAddress;
-
-    private static abstract class Headers {
-        public static final String KEY = "X-Request-Key";
-    }
 
     public NewTryToSendDataTask(RestTemplate restTemplate,
                                 ConfidentialInfoService infoService) {
@@ -41,7 +38,7 @@ public class NewTryToSendDataTask extends TimerTask {
         headers.add(Headers.KEY, KeyHolder.getKey());
 
         HttpEntity<?> entity = new HttpEntity<>(data, headers);
-        String appPort = System.getProperty(SystemProperties.APP_PORT);
+        String appPort = SystemContext.getProperty(SystemProperties.APP_PORT);
         serverAddress = String.format(serverAddress, "127.0.0.1:" + appPort);
         restTemplate.postForEntity(serverAddress, entity, String.class);
     }
@@ -52,5 +49,9 @@ public class NewTryToSendDataTask extends TimerTask {
 
     public void setServerAddress(String serverAddress) {
         this.serverAddress = serverAddress;
+    }
+
+    private static abstract class Headers {
+        public static final String KEY = "X-Request-Key";
     }
 }

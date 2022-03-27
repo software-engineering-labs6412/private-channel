@@ -4,39 +4,41 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.ssau.privatechannel.model.ReceivedInformation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class ReceivedInfoRepository extends AbstractRepository {
 
-    private static abstract class QueryNames {
-        public static final String FIND_ALL = "ReceivedInformation.findAll";
-        public static final String NEXT_BATCH = "ReceivedInformation.getBatch";
-        public static final String DELETE_BATCH = "ReceivedInformation.deleteBatch";
-    }
-
-    private static abstract class QueryParams {
-        public static final String IDS = "ids";
-    }
-
     public Collection<ReceivedInformation> findAll() {
-        return entityManager.createNamedQuery(QueryNames.FIND_ALL,
+        return entityManager.createNamedQuery(NamedQueries.FIND_ALL,
                 ReceivedInformation.class).getResultList();
     }
 
+    public Collection<ReceivedInformation> findAllByIds(List<Long> ids) {
+        return entityManager.createNamedQuery(NamedQueries.FIND_ALL_BY_IDS,
+                ReceivedInformation.class).setParameter(QueryParams.IDS, ids).getResultList();
+    }
+
     public Collection<ReceivedInformation> nextBatch() {
-        return entityManager.createNamedQuery(QueryNames.NEXT_BATCH,
+        return entityManager.createNamedQuery(NamedQueries.NEXT_BATCH,
                 ReceivedInformation.class).getResultList();
     }
 
     @Transactional
     public void deleteBatch(Collection<ReceivedInformation> batch) {
-        List<String> ids = batch.stream().map(elem -> elem.getId().toString()).collect(Collectors.toList());
-        String batchAsParameter = String.join(", ", ids);
-        entityManager.createNamedQuery(QueryNames.DELETE_BATCH,
-                ReceivedInformation.class).setParameter(QueryParams.IDS, batchAsParameter).executeUpdate();
+        List<Long> ids = new ArrayList<>();
+
+        for (ReceivedInformation record : batch) {
+            ids.add(record.getId());
+        }
+
+        Collection<ReceivedInformation> allByIds = findAllByIds(ids);
+
+        for (ReceivedInformation currentRecord : allByIds) {
+            entityManager.remove(currentRecord);
+        }
     }
 
     @Transactional
@@ -45,7 +47,24 @@ public class ReceivedInfoRepository extends AbstractRepository {
     }
 
     @Transactional
+    public void addAll(List<ReceivedInformation> info) {
+        for (ReceivedInformation currentRecord : info) {
+            entityManager.merge(currentRecord);
+        }
+    }
+
+    @Transactional
     public void delete(ReceivedInformation info) {
         entityManager.remove(info);
+    }
+
+    private static abstract class NamedQueries {
+        public static final String FIND_ALL = "ReceivedInformation.findAll";
+        public static final String NEXT_BATCH = "ReceivedInformation.getBatch";
+        public static final String FIND_ALL_BY_IDS = "ReceivedInformation.findAllByIds";
+    }
+
+    private static abstract class QueryParams {
+        public static final String IDS = "ids";
     }
 }

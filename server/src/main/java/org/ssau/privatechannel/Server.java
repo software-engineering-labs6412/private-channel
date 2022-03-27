@@ -2,14 +2,13 @@ package org.ssau.privatechannel;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.ui.StartPage;
 import org.ssau.privatechannel.utils.ApplicationInstaller;
+import org.ssau.privatechannel.utils.SystemContext;
 
 import java.io.IOException;
 
-import static org.ssau.privatechannel.utils.ApplicationInstaller.Mode;
 import static org.ssau.privatechannel.utils.DbClusterInstaller.Instances;
 
 @SpringBootApplication
@@ -19,7 +18,7 @@ public class Server {
 
     public static void main(String[] args) {
 
-        System.setProperty(SystemProperties.INSTANCE, CURRENT_INSTANCE);
+        SystemContext.setProperty(SystemProperties.INSTANCE, CURRENT_INSTANCE);
 
 
         try {

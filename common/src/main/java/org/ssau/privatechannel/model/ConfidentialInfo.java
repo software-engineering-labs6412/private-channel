@@ -25,32 +25,6 @@ import static org.ssau.privatechannel.model.ConfidentialInfo.QueryNames;
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class ConfidentialInfo {
 
-    public static abstract class Queries {
-        public static final String GET_ALL_INFO = "select info from ConfidentialInfo info";
-        public static final String GET_ALL_INFO_BY_IDS = "select info from ConfidentialInfo info where info.id in (:ids)";
-        public static final String GET_BATCH_INFO = "select inf.record_id, inf.text_data, inf.receiver_ip, inf.sender_ip from conf_info inf limit 10";
-    }
-
-    public static abstract class QueryNames {
-        public static final String GET_ALL_INFO = "ConfidentialInfo.findAll";
-        public static final String GET_ALL_INFO_BY_IDS = "ConfidentialInfo.findAllByIds";
-        public static final String GET_BATCH_INFO = "ConfidentialInfo.getBatch";
-    }
-
-    public static abstract class Tables {
-        public static final String CONFIDENTIAL_INFORMATION = "conf_info";
-    }
-
-    private static abstract class Columns {
-        public static final String RECORD_ID = "record_id";
-        public static final String SENDER_IP = "sender_ip";
-        public static final String RECEIVER_IP = "receiver_ip";
-        public static final String TEXT_DATA = "text_data";
-    }
-
-    public ConfidentialInfo() {
-    }
-
     @Id
     @Column(name = Columns.RECORD_ID, nullable = false)
     private Long id;
@@ -64,6 +38,9 @@ public class ConfidentialInfo {
 
     @Column(name = Columns.RECEIVER_IP)
     private String receiverIP;
+
+    public ConfidentialInfo() {
+    }
 
     public String getSenderIP() {
         return senderIP;
@@ -95,5 +72,28 @@ public class ConfidentialInfo {
 
     public void setData(Map<String, Object> data) {
         this.data = data;
+    }
+
+    public static abstract class Queries {
+        public static final String GET_ALL_INFO = "select info from ConfidentialInfo info";
+        public static final String GET_ALL_INFO_BY_IDS = "select info from ConfidentialInfo info where info.id in (:ids)";
+        public static final String GET_BATCH_INFO = "select inf.record_id, inf.text_data, inf.receiver_ip, inf.sender_ip from conf_info inf limit 10";
+    }
+
+    public static abstract class QueryNames {
+        public static final String GET_ALL_INFO = "ConfidentialInfo.findAll";
+        public static final String GET_ALL_INFO_BY_IDS = "ConfidentialInfo.findAllByIds";
+        public static final String GET_BATCH_INFO = "ConfidentialInfo.getBatch";
+    }
+
+    public static abstract class Tables {
+        public static final String CONFIDENTIAL_INFORMATION = "conf_info";
+    }
+
+    private static abstract class Columns {
+        public static final String RECORD_ID = "record_id";
+        public static final String SENDER_IP = "sender_ip";
+        public static final String RECEIVER_IP = "receiver_ip";
+        public static final String TEXT_DATA = "text_data";
     }
 }

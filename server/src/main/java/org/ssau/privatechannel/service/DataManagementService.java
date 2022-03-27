@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.ssau.privatechannel.constants.Endpoints;
+import org.ssau.privatechannel.constants.UrlSchemas;
 import org.ssau.privatechannel.exception.BadRequestException;
 import org.ssau.privatechannel.exception.InternalServerErrorException;
 import org.ssau.privatechannel.exception.NotFoundException;
@@ -21,14 +23,12 @@ import java.util.List;
 @Service
 public class DataManagementService {
 
+    private static final String RECEIVER_URL = UrlSchemas.HTTP + "%s" + Endpoints.API_V1_CLIENT + Endpoints.UPLOAD_DATA;
+    private static final String SERVER_URL = UrlSchemas.HTTP + "%s" + Endpoints.API_V1_SERVER + Endpoints.UPLOAD_DATA;
+    private static final Integer WAIT_TIME_IN_MINUTES = 1;
     private final ConfidentialInfoService confidentialInfoService;
     private final TimerService timerService;
     private final RestTemplate restTemplate;
-
-    private static final String RECEIVER_URL = "http://%s/api/v1/client/upload-data";
-    private static final String SERVER_URL = "http://%s/api/v1/server/upload-data";
-
-    private static final Integer WAIT_TIME_IN_MINUTES = 1;
 
     @Autowired
     public DataManagementService(ConfidentialInfoService confidentialInfoService, TimerService timerService,
@@ -47,8 +47,7 @@ public class DataManagementService {
         try {
             stringResponseEntity =
                     restTemplate.postForEntity(httpAddress, confidentialInfoHttpEntity, String.class);
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             log.error("Could not send data to client [ip = {}]: {}", receiverIP, e.getMessage());
             confidentialInfoService.addAll(confidentialInfo);
@@ -60,8 +59,7 @@ public class DataManagementService {
         boolean isStatusSuccessful = stringResponseEntity.getStatusCode().is2xxSuccessful();
         if (!isStatusSuccessful) {
             confidentialInfoService.addAll(confidentialInfo);
-            if (stringResponseEntity.getStatusCode().equals(HttpStatus.BAD_REQUEST))
-            {
+            if (stringResponseEntity.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
                 log.error("Wrong request to receiver IP. May be body is incorrect");
                 throw new BadRequestException("Wrong request to receiver IP. May be body is incorrect");
             }

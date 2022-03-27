@@ -26,7 +26,7 @@ public abstract class ThreadsHolder {
         }
     }
 
-    public static synchronized void deleteAndStopAllThreads(){
+    public static synchronized void deleteAndStopAllThreads() {
         Set<String> keys = RUNNING_THREADS.keySet();
         for (String threadId : keys) {
             removeAndStopById(threadId);

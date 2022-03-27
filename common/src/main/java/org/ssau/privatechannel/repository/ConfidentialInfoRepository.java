@@ -7,20 +7,9 @@ import org.ssau.privatechannel.model.ConfidentialInfo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class ConfidentialInfoRepository extends AbstractRepository {
-
-    private static class NamedQueries {
-        public static final String FIND_ALL = "ConfidentialInfo.findAll";
-        public static final String FIND_ALL_BY_IDS = "ConfidentialInfo.findAllByIds";
-        public static final String GET_BATCH = "ConfidentialInfo.getBatch";
-    }
-
-    private static class Queries {
-        public static final String DELETE_BATCH = "delete from conf_info where record_id in (:ids)";
-    }
 
     public Collection<ConfidentialInfo> findAll() {
         return entityManager.createNamedQuery(NamedQueries.FIND_ALL,
@@ -29,9 +18,8 @@ public class ConfidentialInfoRepository extends AbstractRepository {
 
     public Collection<ConfidentialInfo> findAllByIds(List<Long> ids) {
         return entityManager.createNamedQuery(NamedQueries.FIND_ALL_BY_IDS,
-                ConfidentialInfo.class).setParameter("ids", ids).getResultList();
+                ConfidentialInfo.class).setParameter(QueryParams.IDS, ids).getResultList();
     }
-
 
     public Collection<ConfidentialInfo> nextBatch() {
         return entityManager.createNamedQuery(NamedQueries.GET_BATCH,
@@ -42,7 +30,7 @@ public class ConfidentialInfoRepository extends AbstractRepository {
     public void deleteBatch(Collection<ConfidentialInfo> batch) {
         List<Long> ids = new ArrayList<>();
 
-        for (ConfidentialInfo record :batch) {
+        for (ConfidentialInfo record : batch) {
             ids.add(record.getId());
         }
 
@@ -68,5 +56,15 @@ public class ConfidentialInfoRepository extends AbstractRepository {
     @Transactional
     public void delete(ConfidentialInfo info) {
         entityManager.remove(info);
+    }
+
+    private static class NamedQueries {
+        public static final String FIND_ALL = "ConfidentialInfo.findAll";
+        public static final String FIND_ALL_BY_IDS = "ConfidentialInfo.findAllByIds";
+        public static final String GET_BATCH = "ConfidentialInfo.getBatch";
+    }
+
+    private static abstract class QueryParams {
+        public static final String IDS = "ids";
     }
 }

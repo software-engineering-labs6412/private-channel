@@ -1,34 +1,29 @@
 package org.ssau.privatechannel.firetasks;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.utils.Base64;
+import org.ssau.privatechannel.utils.ClientsHolder;
 
 import java.util.*;
 
+@Slf4j
 @Component
 @ComponentScan("org.ssau.privatechannel.config")
 public class ProvideNewScheduleTask extends TimerTask {
 
     private final ScheduleService scheduleService;
     private final RestTemplate restTemplate;
-
-    private static final String SCHEDULE_ENDPOINT = "/api/v1/schedule";
-
-    private static abstract class Headers {
-        public static final String KEY = "X-Request-Key";
-    }
 
     @Autowired
     public ProvideNewScheduleTask(ScheduleService scheduleService,
@@ -54,18 +49,23 @@ public class ProvideNewScheduleTask extends TimerTask {
 
         HttpEntity<Schedule> entity = new HttpEntity<>(schedule, headers);
 
-        String clientUrl1 = "http://" + /*TODO: address*/ SCHEDULE_ENDPOINT;
-        ResponseEntity<String> response = restTemplate.postForEntity(clientUrl1, entity, String.class);
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw new RuntimeException("Could not provide schedule to client");
-        }
+        List<String> allClients = ClientsHolder.getAllClients();
 
-        String clientUrl2 = "http://" + /*TODO: address*/ SCHEDULE_ENDPOINT;
-        response = restTemplate.postForEntity(clientUrl2, entity, String.class);
-        if (response.getStatusCode() != HttpStatus.OK) {
-            throw new RuntimeException("Could not provide schedule to client");
+        for (String currentIp : allClients) {
+            String clientUrl = "http://" + currentIp + Endpoints.API_V1_CLIENT + Endpoints.SCHEDULE;
+            ResponseEntity<String> response = restTemplate.postForEntity(clientUrl, entity, String.class);
+            if (response.getStatusCode() != HttpStatus.OK) {
+                String errorMessage = String.format(
+                        "Could not provide schedule to client with IP = %s [url = %s]", currentIp, clientUrl);
+                log.error(errorMessage);
+                throw new RuntimeException(errorMessage);
+            }
         }
 
         scheduleService.delete(schedule);
+    }
+
+    private static abstract class Headers {
+        public static final String KEY = "X-Request-Key";
     }
 }

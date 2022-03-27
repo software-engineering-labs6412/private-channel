@@ -7,8 +7,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.ssau.privatechannel.constants.Endpoints;
+import org.ssau.privatechannel.constants.UrlSchemas;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.utils.ClientsHolder;
@@ -17,15 +20,8 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@RequestMapping(Endpoints.API_V1_SERVER)
 public class InputController {
-
-    private static final String SCHEMA = "http://";
-
-    private static class Endpoints {
-        private static final String URL_SCHEDULES = "/api/v1/server/schedules";
-
-        private static final String CLIENT_SCHEDULE_CONSUMER = "/api/v1/client/schedule";
-    }
 
     final private RestTemplate restTemplate;
 
@@ -37,14 +33,14 @@ public class InputController {
         this.scheduleService = scheduleService;
     }
 
-    @PostMapping(value = Endpoints.URL_SCHEDULES)
+    @PostMapping(value = Endpoints.SCHEDULES)
     public ResponseEntity<?> getSchedule(@RequestBody List<Schedule> schedules) {
         HttpEntity<Schedule> scheduleHttpEntity = new HttpEntity<>(schedules.get(0));
 
         List<String> allClients = ClientsHolder.getAllClients();
 
         for (String currentClient : allClients) {
-            String fullUrl = SCHEMA + currentClient + Endpoints.CLIENT_SCHEDULE_CONSUMER;
+            String fullUrl = UrlSchemas.HTTP + currentClient + Endpoints.API_V1_CLIENT + Endpoints.SCHEDULE;
             ResponseEntity<String> stringResponseEntity =
                     restTemplate.postForEntity(fullUrl, scheduleHttpEntity, String.class);
             boolean isStatusSuccessful = stringResponseEntity.getStatusCode().is2xxSuccessful();

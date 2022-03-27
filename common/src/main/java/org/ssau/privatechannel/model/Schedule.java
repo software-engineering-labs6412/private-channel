@@ -23,27 +23,8 @@ import static org.ssau.privatechannel.model.Schedule.QueryNames;
 @AllArgsConstructor
 public class Schedule {
 
-    public static abstract class Queries {
-        public static final String FIND_ALL =
-                "select distinct s from Schedule s";
-    }
-
-    public static abstract class QueryNames {
-        public static final String FIND_ALL = "Schedule.findAll";
-    }
-
-    public static abstract class Tables {
-        public static final String SCHEDULE = "schedule";
-    }
-
-    public static abstract class Columns {
-        public static final String SCHEDULE_ID = "schedule_id";
-        public static final String TIME_END = "time_end";
-    }
-
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";
-
     @Id
     @Column(name = Columns.SCHEDULE_ID, nullable = false)
     private Long id;
@@ -79,5 +60,23 @@ public class Schedule {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public static abstract class Queries {
+        public static final String FIND_ALL =
+                "select distinct s from Schedule s";
+    }
+
+    public static abstract class QueryNames {
+        public static final String FIND_ALL = "Schedule.findAll";
+    }
+
+    public static abstract class Tables {
+        public static final String SCHEDULE = "schedule";
+    }
+
+    public static abstract class Columns {
+        public static final String SCHEDULE_ID = "schedule_id";
+        public static final String TIME_END = "time_end";
     }
 }

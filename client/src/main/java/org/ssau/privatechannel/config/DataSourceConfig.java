@@ -11,6 +11,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.utils.SystemContext;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -21,21 +22,14 @@ import java.util.Properties;
 @EnableTransactionManagement
 public class DataSourceConfig {
 
-    private static abstract class HibernateProps {
-        public static final String DIALECT = "hibernate.dialect";
-        public static final String SHOW_SQL = "hibernate.show_sql";
-        public static final String AUTO_DDL = "hibernate.hbm2ddl.auto";
-        public static final String SQL_FORMAT = "hibernate.format_sql";
-    }
-
     private static final String POSTGRES_DIALECT = "org.hibernate.dialect.PostgreSQL94Dialect";
 
     @Bean
     public DataSource getDataSource() {
 
-        String url = System.getProperty(SystemProperties.DB_URL);
-        String username = System.getProperty(SystemProperties.DB_USER);
-        String password = System.getProperty(SystemProperties.DB_PASSWORD);
+        String url = SystemContext.getProperty(SystemProperties.DB_URL);
+        String username = SystemContext.getProperty(SystemProperties.DB_USER);
+        String password = SystemContext.getProperty(SystemProperties.DB_PASSWORD);
 
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.url(url);
@@ -74,5 +68,12 @@ public class DataSourceConfig {
         factoryBean.setJpaVendorAdapter(jpaVendorAdapter());
         factoryBean.afterPropertiesSet();
         return factoryBean.getNativeEntityManagerFactory();
+    }
+
+    private static abstract class HibernateProps {
+        public static final String DIALECT = "hibernate.dialect";
+        public static final String SHOW_SQL = "hibernate.show_sql";
+        public static final String AUTO_DDL = "hibernate.hbm2ddl.auto";
+        public static final String SQL_FORMAT = "hibernate.format_sql";
     }
 }

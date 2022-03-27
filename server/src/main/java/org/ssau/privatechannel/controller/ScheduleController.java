@@ -5,19 +5,15 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.repository.ScheduleRepository;
 
 import java.util.LinkedList;
 
 @RestController
-@RequestMapping(path = ScheduleController.Endpoints.API_V1)
+@RequestMapping(path = Endpoints.API_V1_CLIENT)
 public class ScheduleController {
-
-    public static abstract class Endpoints {
-        public static final String API_V1 = "/api/v1/client";
-        private static final String SCHEDULE = "/schedule";
-    }
 
     private final ScheduleRepository scheduleRepository;
 

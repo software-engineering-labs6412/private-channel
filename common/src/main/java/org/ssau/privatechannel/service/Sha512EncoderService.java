@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 @Service
 public class Sha512EncoderService {
 
-    public  String getHash(String input) {
+    public String getHash(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
 
@@ -25,9 +25,7 @@ public class Sha512EncoderService {
             }
 
             return hashtext;
-        }
-
-        catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException e) {
             log.error("Data encryption failed", e);
             throw new RuntimeException(e);
         }

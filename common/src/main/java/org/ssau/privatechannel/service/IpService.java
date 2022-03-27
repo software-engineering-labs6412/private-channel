@@ -18,30 +18,6 @@ import java.util.regex.Pattern;
 @Service
 public class IpService {
 
-    @Data
-    @AllArgsConstructor
-    public static class IpAddress {
-        private String ip;
-        private String mask;
-    }
-
-    private static abstract class Commands {
-        public static final String
-                GET_ALL_INTERFACES_INFO = "ipconfig",
-                ENABLE_FIREWALL = "netsh advfirewall set allprofiles state off",
-                BLOCK_IP_ADDRESS = "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP "
-                        + "localport=%s action=block dir=IN remoteip=%s",
-                BLOCK_HTTP_PORT =
-                        "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP localport=%s action=block dir=IN",
-                DELETE_RULE =
-                        "netsh advfirewall firewall delete rule name=\"%s\"";
-    }
-
-    private static abstract class Ports {
-        public static final String
-                HTTP = "8080";
-    }
-
     public void enableFirewall() throws IOException {
         CommandRunner.run(Commands.ENABLE_FIREWALL);
         log.info("Firewall enabled");
@@ -71,17 +47,12 @@ public class IpService {
                 boolean isIpV4Found = matcher.find();
 
                 if (isIpV4Found) {
-                    result.put(interfaces.get(interfaces.size()-1), matcher.group());
+                    result.put(interfaces.get(interfaces.size() - 1), matcher.group());
                 }
             }
         }
 
         return result;
-    }
-
-    public static void main(String[] args) throws IOException {
-        IpService ipService = new IpService();
-        ipService.getAllInternalRegisteredIp();
     }
 
     public void blockIP(IpAddress ipAddress, String ruleName) throws IOException {
@@ -100,5 +71,28 @@ public class IpService {
         String command = String.format(Commands.DELETE_RULE, ruleName);
         CommandRunner.run(command);
         log.info(String.format("Rule name \"%s\" deleted", ruleName));
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class IpAddress {
+        private String ip;
+    }
+
+    private static abstract class Commands {
+        public static final String
+                GET_ALL_INTERFACES_INFO = "ipconfig",
+                ENABLE_FIREWALL = "netsh advfirewall set allprofiles state off",
+                BLOCK_IP_ADDRESS = "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP "
+                        + "localport=%s action=block dir=IN remoteip=%s",
+                BLOCK_HTTP_PORT =
+                        "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP localport=%s action=block dir=IN",
+                DELETE_RULE =
+                        "netsh advfirewall firewall delete rule name=\"%s\"";
+    }
+
+    private static abstract class Ports {
+        public static final String
+                HTTP = "8080";
     }
 }

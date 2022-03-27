@@ -9,10 +9,6 @@ import java.util.Collection;
 @Repository
 public class ScheduleRepository extends AbstractRepository {
 
-    private static class NamedQueries {
-        public static final String FIND_ALL = "Schedule.findAll";
-    }
-
     public Collection<Schedule> findAll() {
         return entityManager.createNamedQuery(NamedQueries.FIND_ALL, Schedule.class).getResultList();
     }
@@ -30,6 +26,10 @@ public class ScheduleRepository extends AbstractRepository {
     @Transactional
     public void edit(Schedule schedule) {
         entityManager.merge(schedule);
+    }
+
+    private static class NamedQueries {
+        public static final String FIND_ALL = "Schedule.findAll";
     }
 
 }

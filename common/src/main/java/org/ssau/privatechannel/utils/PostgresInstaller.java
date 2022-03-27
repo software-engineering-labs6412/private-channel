@@ -12,33 +12,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class PostgresInstaller {
 
-    private static abstract class Commands {
-        public static final String START_CONTAINER_INSTALLATION
-                = "java -jar %s -settingsFile=%s";
-        public static final String GET_CONTAINER_INFO = "docker ps -f name=%s";
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    private static class ContainerSettings {
-        private String instanceName;
-        private String user;
-        private String password;
-        private String db;
-        private String port;
-    }
-
     private static final String DB_INSTALLATION_JAR_PATH = "installation/db_installation-1.0.jar";
     private static final String SETTINGS_FILE_PATH = "installation/default_settings.json";
-
     private static final String DEFAULT_INSTANCE_NAME = "private_channel";
     private static final String DEFAULT_USERNAME = "postgres";
     private static final String DEFAULT_PASSWORD = "postgres";
     private static final String DEFAULT_DB_NAME = "private_channel";
     private static final String DEFAULT_PORT = "7433";
-
     private static final Integer MAX_WAIT_TIME_SECONDS = 600;
     private static final Integer DEFAULT_DELAY_IN_SECONDS = 10;
 
@@ -118,5 +98,23 @@ public class PostgresInstaller {
         settings.setDb(DEFAULT_DB_NAME);
         settings.setPort(port);
         return settings;
+    }
+
+    private static abstract class Commands {
+        public static final String START_CONTAINER_INSTALLATION
+                = "java -jar %s -settingsFile=%s";
+        public static final String GET_CONTAINER_INFO = "docker ps -f name=%s";
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    private static class ContainerSettings {
+        private String instanceName;
+        private String user;
+        private String password;
+        private String db;
+        private String port;
     }
 }

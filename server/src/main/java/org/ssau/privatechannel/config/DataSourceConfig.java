@@ -1,6 +1,5 @@
 package org.ssau.privatechannel.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -12,6 +11,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.utils.SystemContext;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
@@ -25,9 +25,9 @@ public class DataSourceConfig {
     @Bean
     public DataSource getDataSource() {
 
-        String url = System.getProperty(SystemProperties.DB_URL);
-        String username = System.getProperty(SystemProperties.DB_USER);
-        String password = System.getProperty(SystemProperties.DB_PASSWORD);
+        String url = SystemContext.getProperty(SystemProperties.DB_URL);
+        String username = SystemContext.getProperty(SystemProperties.DB_USER);
+        String password = SystemContext.getProperty(SystemProperties.DB_PASSWORD);
 
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.url(url);

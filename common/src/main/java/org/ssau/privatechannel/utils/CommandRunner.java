@@ -26,7 +26,9 @@ public class CommandRunner {
 
         while (true) {
             line = r.readLine();
-            if (Objects.isNull(line)) { break; }
+            if (Objects.isNull(line)) {
+                break;
+            }
             fullConsoleOutput.add(line);
         }
         return fullConsoleOutput;
@@ -46,7 +48,9 @@ public class CommandRunner {
 
         while (true) {
             line = r.readLine();
-            if (Objects.isNull(line)) { break; }
+            if (Objects.isNull(line)) {
+                break;
+            }
             fullConsoleOutput.add(line);
             System.out.println(line);
         }
@@ -66,7 +70,9 @@ public class CommandRunner {
 
         while (true) {
             line = r.readLine();
-            if (line == null) { break; }
+            if (line == null) {
+                break;
+            }
         }
     }
 }

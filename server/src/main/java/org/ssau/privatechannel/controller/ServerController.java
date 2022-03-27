@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.exception.BadRequestException;
 import org.ssau.privatechannel.exception.InternalServerErrorException;
 import org.ssau.privatechannel.exception.NotFoundException;
@@ -19,13 +20,8 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = ServerController.Endpoints.API_V1)
+@RequestMapping(value = Endpoints.API_V1_SERVER)
 public class ServerController {
-
-    public static abstract class Endpoints {
-        public static final String API_V1 = "/api/v1/server";
-        private static final String UPLOAD_DATA = "/upload-data";
-    }
 
     private final DataManagementService dataManagementService;
 

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.firetasks.EndDataTransferringTask;
 import org.ssau.privatechannel.firetasks.StartDataTransferringTask;
@@ -14,19 +15,15 @@ import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.model.TimeFrame;
 import org.ssau.privatechannel.repository.ScheduleRepository;
 import org.ssau.privatechannel.service.TimerService;
+import org.ssau.privatechannel.utils.SystemContext;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 
 @Slf4j
 @RestController
-@RequestMapping(path = ScheduleController.Endpoints.API_V1)
+@RequestMapping(path = Endpoints.API_V1_CLIENT)
 public class ScheduleController {
-
-    public static abstract class Endpoints {
-        public static final String API_V1 = "/api/v1/client";
-        public static final String SCHEDULE = "/schedule";
-    }
 
     private final ScheduleRepository scheduleRepository;
     private final TimerService timerService;
@@ -35,8 +32,8 @@ public class ScheduleController {
 
     @Autowired
     public ScheduleController(ScheduleRepository scheduleRepository, TimerService timerService,
-                       StartDataTransferringTask startDataTransferringTask,
-                       EndDataTransferringTask endDataTransferringTask) {
+                              StartDataTransferringTask startDataTransferringTask,
+                              EndDataTransferringTask endDataTransferringTask) {
         this.scheduleRepository = scheduleRepository;
         this.timerService = timerService;
         this.startDataTransferringTask = startDataTransferringTask;
@@ -55,12 +52,12 @@ public class ScheduleController {
         scheduleRepository.add(schedule);
 
         Collection<TimeFrame> timeFrames = schedule.getTimeFrames();
-        for(TimeFrame timeFrame : timeFrames){
+        for (TimeFrame timeFrame : timeFrames) {
             LocalDateTime startTime = timeFrame.getStartTime();
             LocalDateTime endTime = timeFrame.getEndTime();
 
-            String currentIp = System.getProperty(SystemProperties.CURRENT_IP);
-            String receiverIp = System.getProperty(SystemProperties.RECEIVER_IP);
+            String currentIp = SystemContext.getProperty(SystemProperties.CURRENT_IP);
+            String receiverIp = SystemContext.getProperty(SystemProperties.RECEIVER_IP);
 
             startDataTransferringTask.setReceiverIp(receiverIp);
 

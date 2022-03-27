@@ -5,6 +5,7 @@ import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.exception.ValidationException;
 import org.ssau.privatechannel.service.IpService;
 import org.ssau.privatechannel.utils.ClientsHolder;
+import org.ssau.privatechannel.utils.SystemContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,32 +21,6 @@ import java.util.regex.Pattern;
 @Slf4j
 public class StartPage {
 
-    private static abstract class DefaultParams {
-
-        // Window settings
-        public static final Dimension WINDOW_SIZE = new Dimension(320, 320);
-        public static final Point LOCATION_POINT = new Point(100, 100);
-
-        // Grid settings
-        public static final Integer ROWS = 11;
-        public static final Integer COLUMNS = 2;
-        public static final Integer H_GAP = 8;
-        public static final Integer V_GAP = 5;
-
-        // Validation constants
-        public static final int MAX_PARAMETER_LENGTH = 50;
-        public static final int MIN_PORT = 7000;
-        public static final int MAX_PORT = 9000;
-
-        // Default params
-        public static final String DEFAULT_APP_PORT = "8080";
-    }
-
-    private static abstract class Instances {
-        public static final String CLIENT = "Client";
-        public static final String SERVER = "Server";
-    }
-
     public static void show() throws IOException {
 
         JDialog settingsWindow = new JDialog(new JFrame(), "Application settings", true);
@@ -53,7 +28,8 @@ public class StartPage {
         settingsWindow.setLocation(DefaultParams.LOCATION_POINT);
 
         settingsWindow.addWindowListener(new WindowAdapter() {
-            @Override public void windowClosing(WindowEvent e) {
+            @Override
+            public void windowClosing(WindowEvent e) {
                 System.exit(0);
             }
         });
@@ -63,14 +39,13 @@ public class StartPage {
 
         GridLayout layout;
 
-        if (System.getProperty(SystemProperties.INSTANCE).equals(Instances.CLIENT)) {
+        if (SystemContext.getProperty(SystemProperties.INSTANCE).equals(Instances.CLIENT)) {
             layout = new GridLayout(DefaultParams.ROWS,
                     DefaultParams.COLUMNS,
                     DefaultParams.H_GAP,
                     DefaultParams.V_GAP);
-        }
-        else {
-            layout = new GridLayout(DefaultParams.ROWS-2,
+        } else {
+            layout = new GridLayout(DefaultParams.ROWS - 2,
                     DefaultParams.COLUMNS,
                     DefaultParams.H_GAP,
                     DefaultParams.V_GAP);
@@ -78,7 +53,7 @@ public class StartPage {
 
         grid.setLayout(layout);
 
-        String[] instances = {System.getProperty(SystemProperties.INSTANCE)};
+        String[] instances = {SystemContext.getProperty(SystemProperties.INSTANCE)};
 
         IpService ipService = new IpService();
         Map<String, String> allInternalRegisteredIp = ipService.getAllInternalRegisteredIp();
@@ -217,14 +192,13 @@ public class StartPage {
                     throw new RuntimeException(e);
                 }
 
-                System.setProperty(SystemProperties.SERVER_IP, serverIpAddress);
-                System.setProperty(SystemProperties.RECEIVER_IP, receiverIpAddress);
+                SystemContext.setProperty(SystemProperties.SERVER_IP, serverIpAddress);
+                SystemContext.setProperty(SystemProperties.RECEIVER_IP, receiverIpAddress);
             } else {
                 try {
                     String clients = clientsIpsTextArea.getText().substring(1);
                     ClientsHolder.addAllClients(clients.split("\n"));
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     String errorMessage =
                             "Something wrong during parsing clients ips. " +
                                     "May be you forgot to add at least one client IP?";
@@ -244,14 +218,14 @@ public class StartPage {
                 throw new RuntimeException(e);
             }
 
-            System.setProperty(SystemProperties.APP_PORT, applicationPort);
-            System.setProperty(SystemProperties.DB_INSTANCE, databaseInstanceName);
-            System.setProperty(SystemProperties.DB_USER, postgresUser);
-            System.setProperty(SystemProperties.DB_PASSWORD, postgresPassword);
-            System.setProperty(SystemProperties.DB_PORT, postgresPort);
-            System.setProperty(SystemProperties.MAIN_DB, postgresDb);
+            SystemContext.setProperty(SystemProperties.APP_PORT, applicationPort);
+            SystemContext.setProperty(SystemProperties.DB_INSTANCE, databaseInstanceName);
+            SystemContext.setProperty(SystemProperties.DB_USER, postgresUser);
+            SystemContext.setProperty(SystemProperties.DB_PASSWORD, postgresPassword);
+            SystemContext.setProperty(SystemProperties.DB_PORT, postgresPort);
+            SystemContext.setProperty(SystemProperties.MAIN_DB, postgresDb);
 
-            System.setProperty(SystemProperties.NETWORK, network.split("=")[0]);
+            SystemContext.setProperty(SystemProperties.NETWORK, network.split("=")[0]);
 
             Matcher matcher = Pattern.compile("[0-9]+.[0-9]+.[0-9]+.[0-9]").matcher(network);
             boolean isNetworkProvided = matcher.find();
@@ -265,7 +239,7 @@ public class StartPage {
                     throw new RuntimeException(e);
                 }
 
-                System.setProperty(SystemProperties.CURRENT_IP, currentIp);
+                SystemContext.setProperty(SystemProperties.CURRENT_IP, currentIp);
             }
 
             settingsWindow.setVisible(false);
@@ -312,8 +286,7 @@ public class StartPage {
                     throw new ValidationException(errorMessage);
                 }
             }
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             String errorMessage =
                     String.format("Invalid part of ip address. Ip must include only digits and dots. Got ip: %s", ip);
             showErrorDialog(errorMessage);
@@ -329,7 +302,7 @@ public class StartPage {
             int parsed = Integer.parseInt(port);
             if (parsed < DefaultParams.MIN_PORT || parsed > DefaultParams.MAX_PORT) {
                 String errorMessage = String.format("Invalid port. Must be in range [%s-%s]",
-                                DefaultParams.MIN_PORT, DefaultParams.MAX_PORT);
+                        DefaultParams.MIN_PORT, DefaultParams.MAX_PORT);
                 showErrorDialog(errorMessage);
                 throw new ValidationException(errorMessage);
             }
@@ -369,5 +342,31 @@ public class StartPage {
             showErrorDialog(errorMessage);
             throw new ValidationException(errorMessage);
         }
+    }
+
+    private static abstract class DefaultParams {
+
+        // Window settings
+        public static final Dimension WINDOW_SIZE = new Dimension(320, 320);
+        public static final Point LOCATION_POINT = new Point(100, 100);
+
+        // Grid settings
+        public static final Integer ROWS = 11;
+        public static final Integer COLUMNS = 2;
+        public static final Integer H_GAP = 8;
+        public static final Integer V_GAP = 5;
+
+        // Validation constants
+        public static final int MAX_PARAMETER_LENGTH = 50;
+        public static final int MIN_PORT = 7000;
+        public static final int MAX_PORT = 9000;
+
+        // Default params
+        public static final String DEFAULT_APP_PORT = "8080";
+    }
+
+    private static abstract class Instances {
+        public static final String CLIENT = "Client";
+        public static final String SERVER = "Server";
     }
 }

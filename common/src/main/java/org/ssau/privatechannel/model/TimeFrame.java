@@ -22,26 +22,6 @@ import static org.ssau.privatechannel.model.TimeFrame.QueryNames;
 public class TimeFrame {
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";
-
-    public static abstract class Queries {
-        public static final String SELECT_ALL_TIMEFRAMES = "select distinct t from TimeFrame t left join fetch t.schedule";
-    }
-
-    public static abstract class QueryNames {
-        public static final String SELECT_ALL_TIMEFRAMES = "TimeFrame.findAllWithSchedule";
-    }
-
-    public static abstract class Tables{
-        public static final String TIME_FRAME = "time_frame";
-    }
-
-    private static abstract class Columns {
-        public static final String TIME_FRAME_ID = "time_frame_id";
-        public static final String START_TIME = "start_time";
-        public static final String END_TIME = "end_time";
-        public static final String SCHEDULE_ID = "schedule_id";
-    }
-
     @Id
     @Column(name = Columns.TIME_FRAME_ID, nullable = false)
     private Long id;
@@ -92,5 +72,24 @@ public class TimeFrame {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public static abstract class Queries {
+        public static final String SELECT_ALL_TIMEFRAMES = "select distinct t from TimeFrame t left join fetch t.schedule";
+    }
+
+    public static abstract class QueryNames {
+        public static final String SELECT_ALL_TIMEFRAMES = "TimeFrame.findAllWithSchedule";
+    }
+
+    public static abstract class Tables {
+        public static final String TIME_FRAME = "time_frame";
+    }
+
+    private static abstract class Columns {
+        public static final String TIME_FRAME_ID = "time_frame_id";
+        public static final String START_TIME = "start_time";
+        public static final String END_TIME = "end_time";
+        public static final String SCHEDULE_ID = "schedule_id";
     }
 }

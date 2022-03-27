@@ -9,24 +9,10 @@ import javax.persistence.*;
         query = AuthorizationKey.Queries.GET_KEY)
 public class AuthorizationKey {
 
-    public static abstract class Queries {
-        public static final String GET_KEY = "select key from AuthorizationKey key";
-    }
-
-    public static abstract class Tables {
-        public static final String AUTHORIZATION_KEY = "authorization_key";
-    }
-
-    private static abstract class Columns{
-        public static final String ID = "id";
-        public static final String HASH = "hash";
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = AuthorizationKey.Columns.ID, nullable = false)
     private Long id;
-
     @Column(name = AuthorizationKey.Columns.HASH, nullable = false)
     private String hash;
 
@@ -52,5 +38,18 @@ public class AuthorizationKey {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public static abstract class Queries {
+        public static final String GET_KEY = "select key from AuthorizationKey key";
+    }
+
+    public static abstract class Tables {
+        public static final String AUTHORIZATION_KEY = "authorization_key";
+    }
+
+    private static abstract class Columns {
+        public static final String ID = "id";
+        public static final String HASH = "hash";
     }
 }
