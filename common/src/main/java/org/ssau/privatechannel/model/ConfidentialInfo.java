@@ -60,10 +60,10 @@ public class ConfidentialInfo {
     @Column(name = Columns.TEXT_DATA, columnDefinition = "json")
     private Map<String, Object> data;
 
-    @Column(name = Columns.SENDER_IP, nullable = false)
+    @Column(name = Columns.SENDER_IP)
     private String senderIP;
 
-    @Column(name = Columns.RECEIVER_IP, nullable = false)
+    @Column(name = Columns.RECEIVER_IP)
     private String receiverIP;
 
     public String getSenderIP() {

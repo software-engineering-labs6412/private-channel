@@ -41,6 +41,13 @@ public class ConfidentialInfoRepository extends AbstractRepository {
     }
 
     @Transactional
+    public void addAll(List<ConfidentialInfo> info) {
+        for (ConfidentialInfo currentRecord : info) {
+            entityManager.merge(currentRecord);
+        }
+    }
+
+    @Transactional
     public void delete(ConfidentialInfo info) {
         entityManager.remove(info);
     }

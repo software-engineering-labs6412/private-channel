@@ -43,7 +43,6 @@ public class TimeFrame {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.TIME_FRAME_ID, nullable = false)
     private Long id;
 
@@ -60,7 +59,7 @@ public class TimeFrame {
     private LocalDateTime endTime;
 
     @ManyToOne
-    @JoinColumn(name = Columns.SCHEDULE_ID)
+    @JoinColumn(name = Columns.SCHEDULE_ID, referencedColumnName = Schedule.Columns.SCHEDULE_ID)
     private Schedule schedule;
 
     public Schedule getSchedule() {

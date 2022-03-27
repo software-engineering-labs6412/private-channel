@@ -10,33 +10,33 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Set;
+import java.util.List;
 
 import static org.ssau.privatechannel.model.Schedule.Queries;
 import static org.ssau.privatechannel.model.Schedule.QueryNames;
 
 @Entity
 @Table(name = Schedule.Tables.SCHEDULE)
-@NamedQuery(name = QueryNames.FIND_ALL_SCHEDULES_WITH_TIMEFRAMES,
-        query = Queries.FIND_ALL_SCHEDULES_WITH_TIMEFRAMES)
+@NamedQuery(name = QueryNames.FIND_ALL,
+        query = Queries.FIND_ALL)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Schedule {
 
     public static abstract class Queries {
-        public static final String FIND_ALL_SCHEDULES_WITH_TIMEFRAMES =
-                "select distinct s from Schedule s left join fetch s.timeFrames";
+        public static final String FIND_ALL =
+                "select distinct s from Schedule s";
     }
 
     public static abstract class QueryNames {
-        public static final String FIND_ALL_SCHEDULES_WITH_TIMEFRAMES = "Schedule.findAllWithTimeFrames";
+        public static final String FIND_ALL = "Schedule.findAll";
     }
 
     public static abstract class Tables {
         public static final String SCHEDULE = "schedule";
     }
 
-    private static abstract class Columns {
+    public static abstract class Columns {
         public static final String SCHEDULE_ID = "schedule_id";
         public static final String TIME_END = "time_end";
     }
@@ -45,7 +45,6 @@ public class Schedule {
     private static final String TIMEZONE = "Europe/Samara";
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.SCHEDULE_ID, nullable = false)
     private Long id;
 
@@ -55,8 +54,8 @@ public class Schedule {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime timeEnd;
 
-    @OneToMany(mappedBy = Tables.SCHEDULE, orphanRemoval = true)
-    private Set<TimeFrame> timeFrames;
+    @OneToMany(mappedBy = Tables.SCHEDULE, orphanRemoval = true, cascade = CascadeType.MERGE)
+    private List<TimeFrame> timeFrames;
 
     public LocalDateTime getTimeEnd() {
         return timeEnd;
@@ -66,11 +65,11 @@ public class Schedule {
         this.timeEnd = timeEnd;
     }
 
-    public Set<TimeFrame> getTimeFrames() {
+    public List<TimeFrame> getTimeFrames() {
         return timeFrames;
     }
 
-    public void setTimeFrames(Set<TimeFrame> time_frames) {
+    public void setTimeFrames(List<TimeFrame> time_frames) {
         this.timeFrames = time_frames;
     }
 

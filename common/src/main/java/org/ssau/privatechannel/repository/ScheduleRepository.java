@@ -10,16 +10,16 @@ import java.util.Collection;
 public class ScheduleRepository extends AbstractRepository {
 
     private static class NamedQueries {
-        public static final String FIND_ALL_WITH_TIMEFRAMES = "Schedule.findAllWithTimeFrames";
+        public static final String FIND_ALL = "Schedule.findAll";
     }
 
     public Collection<Schedule> findAll() {
-        return entityManager.createNamedQuery(NamedQueries.FIND_ALL_WITH_TIMEFRAMES, Schedule.class).getResultList();
+        return entityManager.createNamedQuery(NamedQueries.FIND_ALL, Schedule.class).getResultList();
     }
 
     @Transactional
     public void add(Schedule schedule) {
-        entityManager.persist(schedule);
+        entityManager.merge(schedule);
     }
 
     @Transactional
@@ -29,7 +29,7 @@ public class ScheduleRepository extends AbstractRepository {
 
     @Transactional
     public void edit(Schedule schedule) {
-        entityManager.persist(schedule);
+        entityManager.merge(schedule);
     }
 
 }

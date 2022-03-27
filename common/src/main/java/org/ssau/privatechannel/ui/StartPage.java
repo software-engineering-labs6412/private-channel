@@ -169,27 +169,10 @@ public class StartPage {
                     return;
                 }
 
-                String[] ipAndPort = currentIp.split(":");
-                if (ipAndPort.length != 2) {
-                    String errorMessage = "Invalid client address: " + currentIp;
-                    showErrorDialog(errorMessage);
-                    throw new RuntimeException(errorMessage);
-                }
-
                 try {
-                    validateIp("Client IP", ipAndPort[0]);
+                    validateAddress(currentIp);
                 } catch (ValidationException e) {
-                    String errorMessage = "Invalid client ip address: " + ipAndPort[0];
-                    showErrorDialog(errorMessage);
-                    throw new RuntimeException(errorMessage);
-                }
-
-                try {
-                    validatePort(ipAndPort[1]);
-                } catch (ValidationException e) {
-                    String errorMessage = "Invalid port for client address: " + ipAndPort[1];
-                    showErrorDialog(errorMessage);
-                    throw new RuntimeException(errorMessage);
+                    throw new RuntimeException(e);
                 }
 
                 uniqueIps.add(currentIp);
@@ -228,8 +211,8 @@ public class StartPage {
                 receiverIpAddress = receiverIp.getText();
 
                 try {
-                    validateIp(SystemProperties.SERVER_IP, serverIpAddress);
-                    validateIp(SystemProperties.RECEIVER_IP, receiverIpAddress);
+                    validateAddress(serverIpAddress);
+                    validateAddress(receiverIpAddress);
                 } catch (ValidationException e) {
                     throw new RuntimeException(e);
                 }
@@ -361,5 +344,30 @@ public class StartPage {
         log.error(errorMessage);
         JFrame jFrame = new JFrame();
         JOptionPane.showMessageDialog(jFrame, errorMessage, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    private static void validateAddress(String address) throws ValidationException {
+        String[] ipAndPort = address.split(":");
+        if (ipAndPort.length != 2) {
+            String errorMessage = "Invalid address: " + address;
+            showErrorDialog(errorMessage);
+            throw new ValidationException(errorMessage);
+        }
+
+        try {
+            validateIp("Client IP", ipAndPort[0]);
+        } catch (ValidationException e) {
+            String errorMessage = "Invalid ip address: " + ipAndPort[0];
+            showErrorDialog(errorMessage);
+            throw new ValidationException(errorMessage);
+        }
+
+        try {
+            validatePort(ipAndPort[1]);
+        } catch (ValidationException e) {
+            String errorMessage = "Invalid port for address: " + ipAndPort[1];
+            showErrorDialog(errorMessage);
+            throw new ValidationException(errorMessage);
+        }
     }
 }

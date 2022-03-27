@@ -6,6 +6,7 @@ import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.repository.ConfidentialInfoRepository;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 public class ConfidentialInfoService {
@@ -31,6 +32,10 @@ public class ConfidentialInfoService {
 
     public void add(ConfidentialInfo info) {
         infoRepository.add(info);
+    }
+
+    public void addAll(List<ConfidentialInfo> info) {
+        infoRepository.addAll(info);
     }
 
     public void delete(ConfidentialInfo info) {

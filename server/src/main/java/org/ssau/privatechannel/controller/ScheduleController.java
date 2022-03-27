@@ -15,7 +15,7 @@ import java.util.LinkedList;
 public class ScheduleController {
 
     public static abstract class Endpoints {
-        public static final String API_V1 = "/api/v1";
+        public static final String API_V1 = "/api/v1/client";
         private static final String SCHEDULE = "/schedule";
     }
 

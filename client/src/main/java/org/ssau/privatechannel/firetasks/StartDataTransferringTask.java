@@ -19,6 +19,7 @@ import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.ThreadsHolder;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.TimerTask;
 
 @Slf4j
@@ -26,10 +27,7 @@ import java.util.TimerTask;
 @ComponentScan("org.ssau.privatechannel.config")
 public class StartDataTransferringTask extends TimerTask {
 
-    private final String NEIGHBOUR_ADDRESS = System.getProperty(SystemProperties.RECEIVER_IP);
-
-    private static final String STANDARD_MASK = "255.255.255.0";
-    private static final String SEND_DATA_ENDPOINT = "/api/v1/upload-data";
+    private static final String SEND_DATA_ENDPOINT = "/api/v1/server/upload-data";
     private static final String SCHEMA = "http://";
 
     private final ConfidentialInfoService infoService;
@@ -41,6 +39,8 @@ public class StartDataTransferringTask extends TimerTask {
     private static abstract class Headers {
         public static final String KEY = "X-Request-Key";
     }
+
+    private String receiverIp;
 
     @Autowired
     public StartDataTransferringTask(ConfidentialInfoService infoService,
@@ -57,19 +57,26 @@ public class StartDataTransferringTask extends TimerTask {
         ipService.enableFirewall();
         ipService.deleteRuleByName(FirewallRuleNames.BLOCK_HTTP_PORT);
         ipService.deleteRuleByName(FirewallRuleNames.BLOCK_IP);
+
+        String senderIp = System.getProperty(SystemProperties.CURRENT_IP);
         Thread thread = new Thread(() -> {
             while(true)
-
             {
                 Collection<ConfidentialInfo> batch = infoService.nextBatch();
 
-                String neighbourUrl = SCHEMA + NEIGHBOUR_ADDRESS + SEND_DATA_ENDPOINT;
+                for (ConfidentialInfo next : batch) {
+                    next.setSenderIP(senderIp);
+                    next.setReceiverIP(receiverIp);
+                }
+
+                String serverIp = System.getProperty(SystemProperties.SERVER_IP);
+                String serverAddress = SCHEMA + serverIp + SEND_DATA_ENDPOINT;
                 HttpHeaders headers = new HttpHeaders();
                 headers.add(Headers.KEY, KeyHolder.getKey());
 
                 HttpEntity<Collection<ConfidentialInfo>> entity = new HttpEntity<>(batch, headers);
 
-                ResponseEntity<String> response = restTemplate.postForEntity(neighbourUrl, entity, String.class);
+                ResponseEntity<String> response = restTemplate.postForEntity(serverAddress, entity, String.class);
                 if (response.getStatusCode() != HttpStatus.OK) {
                     log.error("Could not send data to server: server returned status {}", response.getStatusCode());
                     break;
@@ -78,4 +85,13 @@ public class StartDataTransferringTask extends TimerTask {
         });
         ThreadsHolder.addAndRunThread(THREAD_NAME, thread);
     }
+
+    public String getReceiverIp() {
+        return receiverIp;
+    }
+
+    public void setReceiverIp(String receiverIp) {
+        this.receiverIp = receiverIp;
+    }
+
 }

@@ -14,32 +14,34 @@ import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
 
+import java.util.List;
+
 // get data from client
 @RestController
-@RequestMapping(value = ClientController.Endpoints.API_V1)
-public class ClientController {
+@RequestMapping(value = ServerController.Endpoints.API_V1)
+public class ServerController {
 
     public static abstract class Endpoints {
-        public static final String API_V1 = "/api/v1";
+        public static final String API_V1 = "/api/v1/server";
         private static final String UPLOAD_DATA = "/upload-data";
     }
 
-    private static final String RECEIVER_URL = "http://%s/api/v1/upload-data";
+    private static final String RECEIVER_URL = "http://%s/api/v1/client/upload-data";
 
     private final ConfidentialInfoService confidentialInfoService;
     private final RestTemplate restTemplate;
 
     @Autowired
-    public ClientController(ConfidentialInfoService confidentialInfoService, RestTemplate restTemplate) {
+    public ServerController(ConfidentialInfoService confidentialInfoService, RestTemplate restTemplate) {
         this.confidentialInfoService = confidentialInfoService;
         this.restTemplate = restTemplate;
     }
 
     @PostMapping(value = Endpoints.UPLOAD_DATA, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void uploadData(@RequestBody ConfidentialInfo confidentialInfo) {
+    public void uploadData(@RequestBody List<ConfidentialInfo> confidentialInfo) {
 
-        HttpEntity<ConfidentialInfo> confidentialInfoHttpEntity = new HttpEntity<>(confidentialInfo);
-        String ipReceiverPort = confidentialInfo.getReceiverIP();
+        HttpEntity<List<ConfidentialInfo>> confidentialInfoHttpEntity = new HttpEntity<>(confidentialInfo);
+        String ipReceiverPort = confidentialInfo.get(0).getReceiverIP();
         String httpAddress = String.format(RECEIVER_URL, ipReceiverPort);
         ResponseEntity<String> stringResponseEntity;
         try {
@@ -48,13 +50,13 @@ public class ClientController {
         }
         catch (ResourceAccessException e){
             e.printStackTrace();
-            confidentialInfoService.add(confidentialInfo);
+            confidentialInfoService.addAll(confidentialInfo);
             // TODO заскедулить попытку передать сообщение снова ( Димасик)
             throw e;
         }
         boolean isStatusSuccessful = stringResponseEntity.getStatusCode().is2xxSuccessful();
         if (!isStatusSuccessful) {
-            confidentialInfoService.add(confidentialInfo);
+            confidentialInfoService.addAll(confidentialInfo);
             // TODO кидать исключения
             if (stringResponseEntity.getStatusCode().equals(HttpStatus.BAD_REQUEST)) // 400
             {

@@ -19,7 +19,7 @@ public class TimeFrameRepository extends AbstractRepository {
 
     @Transactional
     public void add(TimeFrame timeFrame) {
-        entityManager.persist(timeFrame);
+        entityManager.merge(timeFrame);
     }
 
     @Transactional
@@ -29,7 +29,7 @@ public class TimeFrameRepository extends AbstractRepository {
 
     @Transactional
     public void edit(TimeFrame timeFrame) {
-        entityManager.persist(timeFrame);
+        entityManager.merge(timeFrame);
     }
 
 }
