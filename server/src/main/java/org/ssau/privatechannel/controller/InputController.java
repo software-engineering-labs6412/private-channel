@@ -5,12 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.constants.Endpoints;
+import org.ssau.privatechannel.constants.Parameters;
 import org.ssau.privatechannel.constants.UrlSchemas;
 import org.ssau.privatechannel.exception.ValidationException;
 import org.ssau.privatechannel.model.Schedule;
@@ -19,15 +17,17 @@ import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.utils.ClientsHolder;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping(Endpoints.API_V1_SERVER)
 public class InputController {
 
-    final private RestTemplate restTemplate;
-    final private ScheduleService scheduleService;
+    private final RestTemplate restTemplate;
+    private final ScheduleService scheduleService;
+
+    private static final Random RANDOMIZER = new Random();
 
     @Autowired
     public InputController(RestTemplate restTemplate, ScheduleService scheduleService) {
@@ -37,6 +37,16 @@ public class InputController {
 
     @PostMapping(value = Endpoints.SCHEDULES)
     public ResponseEntity<?> getSchedule(@RequestBody List<Schedule> schedules) {
+
+        for (Schedule schedule : schedules) {
+            if (Objects.isNull(schedule.getId()))
+                schedule.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
+            for (TimeFrame timeFrame : schedule.getTimeFrames()) {
+                if (Objects.isNull(timeFrame.getId())) {
+                    timeFrame.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
+                }
+            }
+        }
 
         try {
             validateSchedules(schedules);
@@ -73,6 +83,30 @@ public class InputController {
         }
 
         return new ResponseEntity<>("Success", HttpStatus.OK);
+    }
+
+    @PostMapping(value = Endpoints.GENERATE_SCHEDULE)
+    public ResponseEntity<?> generateSchedule(@PathVariable("duration") Integer duration) {
+
+        int startDelay = 20;
+        int delayBetweenSchedules = 60;
+
+        List<Schedule> schedules = new ArrayList<>();
+        Schedule schedule = new Schedule();
+
+        TimeFrame timeFrame = new TimeFrame();
+        timeFrame.setStartTime(LocalDateTime.now().plusSeconds(startDelay));
+        timeFrame.setEndTime(LocalDateTime.now().plusSeconds(startDelay + duration));
+
+        TimeFrame timeFrame2 = new TimeFrame();
+        timeFrame2.setStartTime(timeFrame.getEndTime().plusSeconds(delayBetweenSchedules));
+        timeFrame2.setEndTime(timeFrame.getEndTime().plusSeconds(delayBetweenSchedules + duration));
+
+        List<TimeFrame> timeFrames = Arrays.asList(timeFrame, timeFrame2);
+        schedule.setTimeFrames(timeFrames);
+        schedules.add(schedule);
+
+        return getSchedule(schedules);
     }
 
     private void validateSchedules(List<Schedule> schedules) throws ValidationException {

@@ -23,7 +23,6 @@ import static org.ssau.privatechannel.model.Schedule.QueryNames;
 @NamedQuery(name = QueryNames.FIND_FIRST_BY_IP,
         query = Queries.FIND_FIRST_BY_IP)
 @NoArgsConstructor
-@AllArgsConstructor
 @ToString
 public class Schedule {
 
@@ -34,25 +33,11 @@ public class Schedule {
     @Column(name = Columns.SCHEDULE_ID, nullable = false)
     private Long id;
 
-    @Column(name = Columns.TIME_END)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN, timezone = TIMEZONE)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime timeEnd;
-
-    @OneToMany(mappedBy = Tables.SCHEDULE, orphanRemoval = true, cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<TimeFrame> timeFrames;
 
     @Column(name = Columns.CLIENT_IP)
     private String clientIp;
-
-    public LocalDateTime getTimeEnd() {
-        return timeEnd;
-    }
-
-    public void setTimeEnd(LocalDateTime timeEnd) {
-        this.timeEnd = timeEnd;
-    }
 
     public List<TimeFrame> getTimeFrames() {
         return timeFrames;

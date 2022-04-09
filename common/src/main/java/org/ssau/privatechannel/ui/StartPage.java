@@ -75,7 +75,8 @@ public class StartPage {
 
         // Setup application port
         grid.add(new JLabel("Application port"));
-        JTextField appPort = new JTextField(DefaultParams.DEFAULT_APP_PORT);
+        JTextField appPort = instances[0]
+                .equals(Instances.SERVER)?new JTextField(DefaultParams.DEFAULT_APP_PORT):new JTextField("8081");
         grid.add(appPort);
 
         // DB settings
@@ -89,7 +90,7 @@ public class StartPage {
         JTextField pgPassword = new JTextField("postgres");
         grid.add(pgPassword);
         grid.add(new JLabel("PG instance port:"));
-        JTextField dbPort = new JTextField("7430");
+        JTextField dbPort = instances[0].equals(Instances.SERVER)?new JTextField("7430"):new JTextField("7431");
         grid.add(dbPort);
         grid.add(new JLabel("Main database:"));
         JTextField mainDatabase = new JTextField("private_channel");
@@ -99,8 +100,8 @@ public class StartPage {
         grid.add(new JLabel("Using network interface:"));
         grid.add(interfacesComboBox);
 
-        JTextField serverIp = new JTextField();
-        JTextField receiverIp = new JTextField();
+        JTextField serverIp = new JTextField("127.0.0.1:8080");
+        JTextField receiverIp = new JTextField("127.0.0.1:8081");
 
         // Server and other client IPs (only for clients)
         if (instances[0].equals(Instances.CLIENT)) {
@@ -225,7 +226,7 @@ public class StartPage {
             SystemContext.setProperty(SystemProperties.DB_PORT, postgresPort);
             SystemContext.setProperty(SystemProperties.MAIN_DB, postgresDb);
 
-            SystemContext.setProperty(SystemProperties.NETWORK, network.split("=")[0]);
+            SystemContext.setProperty(SystemProperties.NETWORK, network.split("=")[0].split(" ")[1]);
 
             Matcher matcher = Pattern.compile("[0-9]+.[0-9]+.[0-9]+.[0-9]+").matcher(network);
             boolean isNetworkProvided = matcher.find();

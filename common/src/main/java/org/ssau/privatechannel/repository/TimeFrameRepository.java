@@ -9,8 +9,10 @@ import java.util.List;
 @Repository
 public class TimeFrameRepository extends AbstractRepository {
 
+    @SuppressWarnings("unchecked")
     public List<TimeFrame> findAllForSchedule(Long scheduleId) {
-        return entityManager.createNamedQuery(NamedQueries.FIND_ALL_FOR_SCHEDULE, TimeFrame.class)
+        return entityManager.createNativeQuery("select * from time_frame " +
+                        "where schedule_id = :schedule_id", TimeFrame.class)
                 .setParameter(QueryParams.SCHEDULE_ID, scheduleId).getResultList();
     }
 

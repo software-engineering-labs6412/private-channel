@@ -36,8 +36,8 @@ public class StartDataTransferringTask extends TimerTask {
 
     private String receiverIp;
 
-    private static final Integer WAIT_TIME_FOR_NEW_INFO_SECONDS = 10;
-    private static final Integer WAIT_TIMEOUT_SECONDS = 60;
+    private static final Integer WAIT_DELAY = 10;
+    private static final Integer WAIT_TIMEOUT_SECONDS = 600;
 
     public StartDataTransferringTask(ConfidentialInfoService infoService,
                                      RestTemplate restTemplate,
@@ -72,9 +72,9 @@ public class StartDataTransferringTask extends TimerTask {
                     }
 
                     log.info("All information sent. Waiting for new info...");
-                    currentWaitTime += WAIT_TIME_FOR_NEW_INFO_SECONDS;
+                    currentWaitTime += WAIT_DELAY;
                     try {
-                        Thread.sleep(TimeUnit.SECONDS.toMillis(WAIT_TIME_FOR_NEW_INFO_SECONDS));
+                        Thread.sleep(TimeUnit.SECONDS.toMillis(WAIT_DELAY));
                         continue;
                     } catch (InterruptedException e) {
                         log.error("Interrupting thread. Reason: {}", e.getMessage());

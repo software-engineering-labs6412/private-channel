@@ -33,7 +33,6 @@ public class ScheduleController {
 
         for (int i = 0; i < schedule.getTimeFrames().size(); ++i) {
             TimeFrame timeFrame = schedule.getTimeFrames().get(i);
-            timeFrame.setSchedule(schedule);
             schedule.getTimeFrames().set(i, timeFrame);
         }
 

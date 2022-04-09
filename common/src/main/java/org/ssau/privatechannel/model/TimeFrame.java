@@ -24,6 +24,7 @@ import static org.ssau.privatechannel.model.TimeFrame.QueryNames;
 public class TimeFrame {
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";
+
     @Id
     @Column(name = Columns.TIME_FRAME_ID, nullable = false)
     private Long id;
@@ -40,10 +41,6 @@ public class TimeFrame {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime endTime;
 
-    @ManyToOne
-    @JoinColumn(name = Columns.SCHEDULE_ID, referencedColumnName = Schedule.Columns.SCHEDULE_ID)
-    private Schedule schedule;
-
     public boolean isIntersectsWith(TimeFrame timeFrame) {
         return isMomentInTimeFrame(timeFrame.startTime) || isMomentInTimeFrame(timeFrame.endTime) ||
                 timeFrame.isMomentInTimeFrame(startTime) || timeFrame.isMomentInTimeFrame(endTime);
@@ -51,14 +48,6 @@ public class TimeFrame {
 
     public boolean isMomentInTimeFrame(LocalDateTime moment) {
         return moment.isAfter(startTime) && moment.isBefore(endTime);
-    }
-
-    public Schedule getSchedule() {
-        return schedule;
-    }
-
-    public void setSchedule(Schedule schedule) {
-        this.schedule = schedule;
     }
 
     public LocalDateTime getStartTime() {
@@ -102,6 +91,5 @@ public class TimeFrame {
         public static final String TIME_FRAME_ID = "time_frame_id";
         public static final String START_TIME = "start_time";
         public static final String END_TIME = "end_time";
-        public static final String SCHEDULE_ID = "schedule_id";
     }
 }

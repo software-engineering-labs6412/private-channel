@@ -1,6 +1,9 @@
 package org.ssau.privatechannel.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -25,6 +28,8 @@ import static org.ssau.privatechannel.model.ConfidentialInfo.QueryNames;
         resultClass = ConfidentialInfo.class)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 @ToString
+@Builder
+@AllArgsConstructor
 public class ConfidentialInfo {
 
     @Id
