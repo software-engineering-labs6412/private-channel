@@ -1,41 +1,52 @@
 package org.ssau.privatechannel.firetasks;
 
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.stereotype.Component;
 import org.ssau.privatechannel.constants.FirewallRuleNames;
 import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.service.IpService;
+import org.ssau.privatechannel.service.NetworkAdapterService;
+import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.utils.KeyHolder;
+import org.ssau.privatechannel.utils.SystemContext;
 import org.ssau.privatechannel.utils.ThreadsHolder;
 
 import java.util.TimerTask;
 
-@Component
-@ComponentScan("org.ssau.privatechannel.config")
 public class EndDataTransferringTask extends TimerTask {
 
-    private final String NEIGHBOUR_ADDRESS = System.getProperty(SystemProperties.NEIGHBOUR_IP);
-    private static final String STANDARD_MASK = "255.255.255.0";
-
     private final IpService ipService;
+    private final NetworkAdapterService networkAdapterService;
+    private final ScheduleService scheduleService;
 
-    @Autowired
-    public EndDataTransferringTask(IpService ipService) {
+    private final Schedule schedule;
+
+    public EndDataTransferringTask(IpService ipService,
+                                   NetworkAdapterService networkAdapterService,
+                                   ScheduleService scheduleService,
+                                   Schedule schedule) {
         this.ipService = ipService;
+        this.networkAdapterService = networkAdapterService;
+        this.scheduleService = scheduleService;
+        this.schedule = schedule;
     }
 
     @SneakyThrows
     @Override
     public void run() {
-        ipService.enableFirewall();
-        ipService.deleteRuleByName(FirewallRuleNames.UNBLOCK_HTTP_PORT);
         ipService.deleteRuleByName(FirewallRuleNames.UNBLOCK_IP);
-        ipService.blockHttpPort(FirewallRuleNames.BLOCK_HTTP_PORT);
-        ipService.blockIP(new IpService.IpAddress(NEIGHBOUR_ADDRESS, STANDARD_MASK), FirewallRuleNames.BLOCK_IP);
+
+        String serverIp = SystemContext.getProperty(SystemProperties.SERVER_IP);
+        String receiverIp = SystemContext.getProperty(SystemProperties.RECEIVER_IP);
+
+        ipService.blockIP(new IpService.IpAddress(serverIp), FirewallRuleNames.BLOCK_IP);
+        ipService.blockIP(new IpService.IpAddress(receiverIp), FirewallRuleNames.BLOCK_IP);
+
+        String networkInterface = SystemContext.getProperty(SystemProperties.NETWORK);
+        networkAdapterService.disableInterfaces(networkInterface);
 
         KeyHolder.dropKey();
+        scheduleService.delete(schedule);
         ThreadsHolder.removeAndStopById(StartDataTransferringTask.THREAD_NAME);
     }
 }

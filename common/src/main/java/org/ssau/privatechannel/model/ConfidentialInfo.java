@@ -1,46 +1,37 @@
 package org.ssau.privatechannel.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.util.Map;
 
+import static org.ssau.privatechannel.model.ConfidentialInfo.Queries;
+import static org.ssau.privatechannel.model.ConfidentialInfo.QueryNames;
+
 @Entity
 @Table(name = ConfidentialInfo.Tables.CONFIDENTIAL_INFORMATION)
 @NamedQuery(
-        name = "ConfidentialInfo.findAll",
-        query = ConfidentialInfo.Queries.GET_ALL_INFO)
-@NamedNativeQuery(
-        name = "ConfidentialInfo.getBatch",
-        query = ConfidentialInfo.Queries.GET_BATCH_INFO,
-        resultClass = ConfidentialInfo.class)
+        name = QueryNames.GET_ALL_INFO,
+        query = Queries.GET_ALL_INFO)
 @NamedQuery(
-        name = "ConfidentialInfo.deleteBatch",
-        query = ConfidentialInfo.Queries.DELETE_BATCH)
+        name = QueryNames.GET_ALL_INFO_BY_IDS,
+        query = Queries.GET_ALL_INFO_BY_IDS)
+@NamedNativeQuery(
+        name = QueryNames.GET_BATCH_INFO,
+        query = Queries.GET_BATCH_INFO,
+        resultClass = ConfidentialInfo.class)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+@ToString
+@Builder
+@AllArgsConstructor
 public class ConfidentialInfo {
 
-    public static abstract class Queries {
-        public static final String GET_ALL_INFO = "select info from ConfidentialInfo info";
-        public static final String GET_BATCH_INFO = "select inf.record_id, inf.text_data, inf.reveiver_ip, inf.sender_ip from conf_info inf limit 10";
-        public static final String DELETE_BATCH = "delete from ConfidentialInfo info where info.id in (:ids)";
-    }
-
-    public static abstract class Tables {
-        public static final String CONFIDENTIAL_INFORMATION = "conf_info";
-    }
-
-    private static abstract class Columns {
-        public static final String RECORD_ID = "record_id";
-        public static final String SENDER_IP = "sender_ip";
-        public static final String RECEIVER_IP = "reveiver_ip";
-        public static final String TEXT_DATA = "text_data";
-    }
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.RECORD_ID, nullable = false)
     private Long id;
 
@@ -48,12 +39,14 @@ public class ConfidentialInfo {
     @Column(name = Columns.TEXT_DATA, columnDefinition = "json")
     private Map<String, Object> data;
 
-
-    @Column(name = ConfidentialInfo.Columns.SENDER_IP, nullable = false)
+    @Column(name = Columns.SENDER_IP)
     private String senderIP;
 
-    @Column(name = ConfidentialInfo.Columns.RECEIVER_IP, nullable = false)
+    @Column(name = Columns.RECEIVER_IP)
     private String receiverIP;
+
+    public ConfidentialInfo() {
+    }
 
     public String getSenderIP() {
         return senderIP;
@@ -71,9 +64,6 @@ public class ConfidentialInfo {
         this.receiverIP = receiverIP;
     }
 
-    public ConfidentialInfo() {
-    }
-
     public Long getId() {
         return id;
     }
@@ -86,8 +76,30 @@ public class ConfidentialInfo {
         return data;
     }
 
-
     public void setData(Map<String, Object> data) {
         this.data = data;
+    }
+
+    public static abstract class Queries {
+        public static final String GET_ALL_INFO = "select info from ConfidentialInfo info";
+        public static final String GET_ALL_INFO_BY_IDS = "select info from ConfidentialInfo info where info.id in (:ids)";
+        public static final String GET_BATCH_INFO = "select inf.record_id, inf.text_data, inf.receiver_ip, inf.sender_ip from conf_info inf limit 10";
+    }
+
+    public static abstract class QueryNames {
+        public static final String GET_ALL_INFO = "ConfidentialInfo.findAll";
+        public static final String GET_ALL_INFO_BY_IDS = "ConfidentialInfo.findAllByIds";
+        public static final String GET_BATCH_INFO = "ConfidentialInfo.getBatch";
+    }
+
+    public static abstract class Tables {
+        public static final String CONFIDENTIAL_INFORMATION = "conf_info";
+    }
+
+    private static abstract class Columns {
+        public static final String RECORD_ID = "record_id";
+        public static final String SENDER_IP = "sender_ip";
+        public static final String RECEIVER_IP = "receiver_ip";
+        public static final String TEXT_DATA = "text_data";
     }
 }

@@ -1,28 +1,52 @@
 package org.ssau.privatechannel.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.model.Schedule;
-import org.ssau.privatechannel.repository.ScheduleRepository;
+import org.ssau.privatechannel.service.ScheduleService;
 
-import java.util.LinkedList;
+import java.util.Objects;
 
+@Slf4j
 @RestController
-@RequestMapping(path = "/schedule")
+@RequestMapping(path = Endpoints.API_V1_SERVER)
 public class ScheduleController {
 
-    private final String endPoint = "/api/v1";
+    private final ScheduleService scheduleService;
 
     @Autowired
-    ScheduleRepository scheduleRepository;
+    public ScheduleController(ScheduleService scheduleService) {
+        this.scheduleService = scheduleService;
+    }
 
-    @PostMapping(value = endPoint, produces = MediaType.APPLICATION_JSON_VALUE)
-    public Schedule sendSchedule() {
-        LinkedList<Schedule> list = new LinkedList<>(scheduleRepository.findAll());
-        return list.remove(0);
+    @PostMapping(value = Endpoints.GET_NEW_SCHEDULE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> sendSchedule(@RequestBody String requesterIp) {
+
+        log.info("Searching schedule for client [ip={}]", requesterIp);
+
+        Schedule schedule = scheduleService.findNextByIp(requesterIp);
+
+        if (Objects.isNull(schedule)) {
+            log.info("Schedule for client [ip={}] not found", requesterIp);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        if (!scheduleService.isActualSchedule(schedule)) {
+            log.error("Schedule not actual on server for client with IP = {}", requesterIp);
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+
+        log.info("Schedule for client [ip={}] found: {}", requesterIp, schedule);
+        scheduleService.delete(schedule);
+        return new ResponseEntity<>(schedule, HttpStatus.OK);
     }
 
 }

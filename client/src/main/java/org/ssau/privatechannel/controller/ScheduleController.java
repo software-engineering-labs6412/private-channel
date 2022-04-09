@@ -1,53 +1,42 @@
 package org.ssau.privatechannel.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.ssau.privatechannel.firetasks.EndDataTransferringTask;
-import org.ssau.privatechannel.firetasks.StartDataTransferringTask;
+import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.model.TimeFrame;
 import org.ssau.privatechannel.repository.ScheduleRepository;
-import org.ssau.privatechannel.service.TimerService;
+import org.ssau.privatechannel.service.TasksService;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-
+@Slf4j
 @RestController
-@RequestMapping(path = "/api/v1")
+@RequestMapping(path = Endpoints.API_V1_CLIENT)
 public class ScheduleController {
 
     private final ScheduleRepository scheduleRepository;
-    private final TimerService timerService;
-    private final StartDataTransferringTask startDataTransferringTask;
-    private final EndDataTransferringTask endDataTransferringTask;
+    private final TasksService tasksService;
 
     @Autowired
-    ScheduleController(ScheduleRepository scheduleRepository, TimerService timerService,
-                       StartDataTransferringTask startDataTransferringTask,
-                       EndDataTransferringTask endDataTransferringTask) {
+    public ScheduleController(ScheduleRepository scheduleRepository,
+                              TasksService tasksService) {
         this.scheduleRepository = scheduleRepository;
-        this.timerService = timerService;
-        this.startDataTransferringTask = startDataTransferringTask;
-        this.endDataTransferringTask = endDataTransferringTask;
+        this.tasksService = tasksService;
     }
 
-    private final String END_POINT = "/schedule";
-
-    @PostMapping(value = END_POINT, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = Endpoints.SCHEDULE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public void saveSchedule(@RequestBody Schedule schedule) {
-        scheduleRepository.add(schedule);
 
-        Collection<TimeFrame> timeFrames = schedule.getTimeFrames();
-        for(TimeFrame timeFrame : timeFrames){
-            LocalDateTime startTime = timeFrame.getStartTime();
-            LocalDateTime endTime = timeFrame.getEndTime();
-            timerService.createTask(startDataTransferringTask, startTime);
-            timerService.createTask(endDataTransferringTask, endTime);
+        for (int i = 0; i < schedule.getTimeFrames().size(); ++i) {
+            TimeFrame timeFrame = schedule.getTimeFrames().get(i);
+            schedule.getTimeFrames().set(i, timeFrame);
         }
-    }
 
+        scheduleRepository.add(schedule);
+        tasksService.plan(schedule);
+    }
 }

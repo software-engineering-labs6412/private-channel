@@ -15,7 +15,6 @@ public class AuthKeyService {
         this.authKeyRepository = authKeyRepository;
     }
 
-
     public AuthorizationKey get() {
         return authKeyRepository.get();
     }

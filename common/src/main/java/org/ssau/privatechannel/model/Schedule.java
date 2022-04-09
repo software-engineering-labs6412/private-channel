@@ -1,66 +1,42 @@
 package org.ssau.privatechannel.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.ToString;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Set;
+import java.util.List;
+
+import static org.ssau.privatechannel.model.Schedule.Queries;
+import static org.ssau.privatechannel.model.Schedule.QueryNames;
 
 @Entity
 @Table(name = Schedule.Tables.SCHEDULE)
-@NamedQuery(name = "Schedule.findAllWithTimeFrames",
-        query = "select distinct s from Schedule s left join fetch s.timeFrames")
+@NamedQuery(name = QueryNames.FIND_ALL,
+        query = Queries.FIND_ALL)
+@NamedQuery(name = QueryNames.FIND_FIRST_BY_IP,
+        query = Queries.FIND_FIRST_BY_IP)
 @NoArgsConstructor
-@AllArgsConstructor
+@ToString
 public class Schedule {
+
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";
 
-    public static abstract class Tables{
-        public static final String SCHEDULE = "schedule";
-    }
-
-
-    private static abstract class Columns{
-        public static final String SCHEDULE_ID = "schedule_id";
-        public static final String TIME_END = "time_end";
-    }
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = Columns.SCHEDULE_ID, nullable = false)
     private Long id;
 
-    @Column(name = Columns.TIME_END)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN, timezone = TIMEZONE)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    private LocalDateTime timeEnd;
+    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TimeFrame> timeFrames;
 
-    @OneToMany(mappedBy = Tables.SCHEDULE, orphanRemoval = true)
-    private Set<TimeFrame> timeFrames;
+    @Column(name = Columns.CLIENT_IP)
+    private String clientIp;
 
-    public LocalDateTime getTimeEnd() {
-        return timeEnd;
-    }
-
-    public void setTimeEnd(LocalDateTime timeEnd) {
-        this.timeEnd = timeEnd;
-    }
-
-    public Set<TimeFrame> getTimeFrames() {
+    public List<TimeFrame> getTimeFrames() {
         return timeFrames;
     }
 
-    public void setTimeFrames(Set<TimeFrame> time_frames) {
+    public void setTimeFrames(List<TimeFrame> time_frames) {
         this.timeFrames = time_frames;
     }
 
@@ -70,5 +46,35 @@ public class Schedule {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getClientIp() {
+        return clientIp;
+    }
+
+    public void setClientIp(String clientIp) {
+        this.clientIp = clientIp;
+    }
+
+    public static abstract class Queries {
+        public static final String FIND_ALL =
+                "select distinct s from Schedule s";
+        public static final String FIND_FIRST_BY_IP =
+                "select distinct s from Schedule s where s.clientIp = :ip";
+    }
+
+    public static abstract class QueryNames {
+        public static final String FIND_ALL = "Schedule.findAll";
+        public static final String FIND_FIRST_BY_IP = "Schedule.findFirstByIp";
+    }
+
+    public static abstract class Tables {
+        public static final String SCHEDULE = "schedule";
+    }
+
+    public static abstract class Columns {
+        public static final String SCHEDULE_ID = "schedule_id";
+        public static final String TIME_END = "time_end";
+        public static final String CLIENT_IP = "client_ip";
     }
 }
