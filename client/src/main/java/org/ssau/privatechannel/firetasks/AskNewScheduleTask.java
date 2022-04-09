@@ -10,6 +10,7 @@ import org.ssau.privatechannel.constants.UrlSchemas;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.service.IpService;
 import org.ssau.privatechannel.service.NetworkAdapterService;
+import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.utils.SystemContext;
 
 import java.util.Objects;
@@ -21,13 +22,16 @@ public class AskNewScheduleTask extends TimerTask  {
     private final RestTemplate restTemplate;
     private final IpService ipService;
     private final NetworkAdapterService networkAdapterService;
+    private final ScheduleService scheduleService;
 
     public AskNewScheduleTask(RestTemplate restTemplate,
                               IpService ipService,
-                              NetworkAdapterService networkAdapterService) {
+                              NetworkAdapterService networkAdapterService,
+                              ScheduleService scheduleService) {
         this.restTemplate = restTemplate;
         this.ipService = ipService;
         this.networkAdapterService = networkAdapterService;
+        this.scheduleService = scheduleService;
     }
 
     @Override
@@ -74,7 +78,7 @@ public class AskNewScheduleTask extends TimerTask  {
         }
 
         EndDataTransferringTask endDataTransferringTask = new EndDataTransferringTask(
-                ipService, networkAdapterService);
+                ipService, networkAdapterService, scheduleService, scheduleResponseEntity.getBody());
         endDataTransferringTask.run();
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -51,6 +52,11 @@ public class ConfidentialInfoRepository extends AbstractRepository {
         for (ConfidentialInfo currentRecord : info) {
             entityManager.merge(currentRecord);
         }
+    }
+
+    public int getInfoCount() {
+        return ((BigInteger)
+                (entityManager.createNativeQuery("select count(*) from conf_info").getSingleResult())).intValue();
     }
 
     @Transactional

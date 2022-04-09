@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -36,7 +37,16 @@ public class InputController {
     }
 
     @PostMapping(value = Endpoints.SCHEDULES)
-    public ResponseEntity<?> getSchedule(@RequestBody List<Schedule> schedules) {
+    public ResponseEntity<?> provideSchedules(@RequestBody List<Schedule> schedules) {
+
+        String clientId = schedules.get(0).getClientIp();
+        if (Objects.nonNull(scheduleService.findNextByIp(clientId))) {
+            scheduleService.addAll(schedules);
+            String logMessage = String.format("Schedules for client [IP = %s] already exists. " +
+                            "Schedules will be added in queue", clientId);
+            log.info(logMessage);
+            return new ResponseEntity<>(logMessage, HttpStatus.ACCEPTED);
+        }
 
         for (Schedule schedule : schedules) {
             if (Objects.isNull(schedule.getId()))
@@ -78,15 +88,15 @@ public class InputController {
             }
         }
 
-        for (int i = 1; i < schedules.size(); i++) {
-            scheduleService.add(schedules.get(i));
-        }
+        schedules.remove(0);
+        scheduleService.addAll(schedules);
 
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }
 
-    @PostMapping(value = Endpoints.GENERATE_SCHEDULE)
-    public ResponseEntity<?> generateSchedule(@PathVariable("duration") Integer duration) {
+    @PostMapping(value = Endpoints.GENERATE_SCHEDULE, consumes = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> generateSchedule(@PathVariable("duration") Integer duration,
+                                              @RequestBody String clientIp) {
 
         int startDelay = 20;
         int delayBetweenSchedules = 60;
@@ -105,8 +115,9 @@ public class InputController {
         List<TimeFrame> timeFrames = Arrays.asList(timeFrame, timeFrame2);
         schedule.setTimeFrames(timeFrames);
         schedules.add(schedule);
+        schedule.setClientIp(clientIp);
 
-        return getSchedule(schedules);
+        return provideSchedules(schedules);
     }
 
     private void validateSchedules(List<Schedule> schedules) throws ValidationException {

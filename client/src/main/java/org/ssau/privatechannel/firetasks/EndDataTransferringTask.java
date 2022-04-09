@@ -3,8 +3,10 @@ package org.ssau.privatechannel.firetasks;
 import lombok.SneakyThrows;
 import org.ssau.privatechannel.constants.FirewallRuleNames;
 import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.service.IpService;
 import org.ssau.privatechannel.service.NetworkAdapterService;
+import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.SystemContext;
 import org.ssau.privatechannel.utils.ThreadsHolder;
@@ -15,10 +17,18 @@ public class EndDataTransferringTask extends TimerTask {
 
     private final IpService ipService;
     private final NetworkAdapterService networkAdapterService;
+    private final ScheduleService scheduleService;
 
-    public EndDataTransferringTask(IpService ipService, NetworkAdapterService networkAdapterService) {
+    private final Schedule schedule;
+
+    public EndDataTransferringTask(IpService ipService,
+                                   NetworkAdapterService networkAdapterService,
+                                   ScheduleService scheduleService,
+                                   Schedule schedule) {
         this.ipService = ipService;
         this.networkAdapterService = networkAdapterService;
+        this.scheduleService = scheduleService;
+        this.schedule = schedule;
     }
 
     @SneakyThrows
@@ -36,6 +46,7 @@ public class EndDataTransferringTask extends TimerTask {
         networkAdapterService.disableInterfaces(networkInterface);
 
         KeyHolder.dropKey();
+        scheduleService.delete(schedule);
         ThreadsHolder.removeAndStopById(StartDataTransferringTask.THREAD_NAME);
     }
 }

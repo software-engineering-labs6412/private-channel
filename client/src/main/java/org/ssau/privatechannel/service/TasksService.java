@@ -12,21 +12,16 @@ import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.model.TimeFrame;
 import org.ssau.privatechannel.utils.SystemContext;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
 public class TasksService {
 
-    private static final String ZONE_ID_STR = "Europe/Samara";
-
     private final ConfidentialInfoService infoService;
+    private final ScheduleService scheduleService;
     private final IpService ipService;
     private final NetworkAdapterService networkAdapterService;
     private final RestTemplate restTemplate;
@@ -37,12 +32,14 @@ public class TasksService {
                         IpService ipService,
                         TimerService timerService,
                         NetworkAdapterService networkAdapterService,
-                        RestTemplate restTemplate) {
+                        RestTemplate restTemplate,
+                        ScheduleService scheduleService) {
         this.infoService = infoService;
         this.ipService = ipService;
         this.networkAdapterService = networkAdapterService;
         this.restTemplate = restTemplate;
         this.timerService = timerService;
+        this.scheduleService = scheduleService;
     }
 
     public void plan(Schedule schedule) {
@@ -66,9 +63,11 @@ public class TasksService {
                     currentIp, receiverIp, startTime);
 
             if (isLastTimeframe(schedule, timeFrame)) {
-                AskNewScheduleTask askNewScheduleTask = new AskNewScheduleTask(restTemplate,
+                AskNewScheduleTask askNewScheduleTask = new AskNewScheduleTask(
+                        restTemplate,
                         ipService,
-                        networkAdapterService);
+                        networkAdapterService,
+                        scheduleService);
 
                 log.info("New schedule will be requested at {}", timeFrame.getEndTime());
                 timerService.createTask(askNewScheduleTask, timeFrame.getEndTime());
@@ -76,7 +75,7 @@ public class TasksService {
             }
 
             EndDataTransferringTask endTransferringTask =
-                    new EndDataTransferringTask(ipService, networkAdapterService);
+                    new EndDataTransferringTask(ipService, networkAdapterService, scheduleService, schedule);
 
             timerService.createTask(endTransferringTask, endTime);
             log.info("Transferring data from client [IP={}] to client [IP={}] will be end at {}",

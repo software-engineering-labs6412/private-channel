@@ -39,6 +39,11 @@ public class ScheduleController {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
 
+        if (!scheduleService.isActualSchedule(schedule)) {
+            log.error("Schedule not actual on server for client with IP = {}", requesterIp);
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+
         log.info("Schedule for client [ip={}] found: {}", requesterIp, schedule);
         scheduleService.delete(schedule);
         return new ResponseEntity<>(schedule, HttpStatus.OK);

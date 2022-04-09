@@ -59,4 +59,7 @@ public class ConfidentialInfoService {
         infoRepository.delete(info);
     }
 
+    public int getInfoCount() {
+        return infoRepository.getInfoCount();
+    }
 }

@@ -9,7 +9,7 @@ import org.ssau.privatechannel.model.TimeFrame;
 import org.ssau.privatechannel.repository.ScheduleRepository;
 import org.ssau.privatechannel.repository.TimeFrameRepository;
 
-import java.util.Collection;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -51,6 +51,15 @@ public class ScheduleService {
         scheduleRepository.add(schedule);
     }
 
+    public void addAll(List<Schedule> schedules) {
+        for (Schedule schedule : schedules) {
+            if (Objects.isNull(schedule.getId())) {
+                schedule.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
+            }
+        }
+        scheduleRepository.addAll(schedules);
+    }
+
     public void delete(Schedule schedule) {
         scheduleRepository.delete(schedule);
     }
@@ -59,4 +68,11 @@ public class ScheduleService {
         scheduleRepository.edit(schedule);
     }
 
+    public boolean isActualSchedule(Schedule schedule) {
+        for (TimeFrame timeFrame : schedule.getTimeFrames()) {
+            if (timeFrame.getStartTime().isBefore(LocalDateTime.now()))
+                return false;
+        }
+        return true;
+    }
 }

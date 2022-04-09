@@ -19,6 +19,7 @@ import org.ssau.privatechannel.utils.SystemContext;
 import org.ssau.privatechannel.utils.ThreadsHolder;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +55,7 @@ public class StartDataTransferringTask extends TimerTask {
     public void run() {
         ipService.deleteRuleByName(FirewallRuleNames.BLOCK_IP);
         String currentInterface = SystemContext.getProperty(SystemProperties.NETWORK);
-        networkAdapterService.disableInterfaces(currentInterface);
+        networkAdapterService.enableInterfaces(currentInterface);
 
         String senderIp = SystemContext.getProperty(SystemProperties.CURRENT_IP);
         Thread thread = new Thread(() -> {
@@ -84,9 +85,20 @@ public class StartDataTransferringTask extends TimerTask {
 
                 currentWaitTime = 0;
 
+
                 for (ConfidentialInfo next : batch) {
                     next.setSenderIP(senderIp);
-                    next.setReceiverIP(receiverIp);
+
+                    if (Objects.isNull(receiverIp)) {
+                        log.warn("Receiver IP not provided. Trying to get this IP from data");
+                        if (Objects.isNull(next.getReceiverIP())){
+                            log.error("Could not get receiver IP from data [ID = {}]. Exiting", next.getId());
+                            return;
+                        }
+                    }
+                    else
+                        next.setReceiverIP(receiverIp);
+
                 }
 
                 String serverIp = SystemContext.getProperty(SystemProperties.SERVER_IP);
@@ -96,7 +108,14 @@ public class StartDataTransferringTask extends TimerTask {
 
                 HttpEntity<Collection<ConfidentialInfo>> entity = new HttpEntity<>(batch, headers);
 
-                ResponseEntity<String> response = restTemplate.postForEntity(serverAddress, entity, String.class);
+                ResponseEntity<String> response;
+                try {
+                    response = restTemplate.postForEntity(serverAddress, entity, String.class);
+                }
+                catch (Throwable e) {
+                    log.error("Could not send data to server", e);
+                    break;
+                }
                 if (response.getStatusCode() != HttpStatus.OK) {
                     log.error("Could not send data to server: server returned status {}", response.getStatusCode());
                     break;

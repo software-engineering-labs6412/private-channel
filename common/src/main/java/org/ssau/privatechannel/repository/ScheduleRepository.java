@@ -39,6 +39,13 @@ public class ScheduleRepository extends AbstractRepository {
     }
 
     @Transactional
+    public void addAll(List<Schedule> schedules) {
+        for (Schedule currentRecord : schedules) {
+            entityManager.merge(currentRecord);
+        }
+    }
+
+    @Transactional
     public void delete(Schedule schedule) {
         Schedule scheduleForDelete = findById(schedule.getId());
         entityManager.remove(scheduleForDelete);

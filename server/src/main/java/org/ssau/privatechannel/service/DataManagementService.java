@@ -13,6 +13,7 @@ import org.ssau.privatechannel.exception.BadRequestException;
 import org.ssau.privatechannel.exception.InternalServerErrorException;
 import org.ssau.privatechannel.exception.NotFoundException;
 import org.ssau.privatechannel.firetasks.NewTryToSendDataTask;
+import org.ssau.privatechannel.firetasks.StartDataTransferringTask;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 
 import java.time.LocalDateTime;
@@ -26,20 +27,42 @@ public class DataManagementService {
     private static final String RECEIVER_URL = UrlSchemas.HTTP + "%s" + Endpoints.API_V1_CLIENT + Endpoints.UPLOAD_DATA;
     private static final String SERVER_URL = UrlSchemas.HTTP + "%s" + Endpoints.API_V1_SERVER + Endpoints.UPLOAD_DATA;
     private static final Integer WAIT_TIME_IN_MINUTES = 1;
-    private final ConfidentialInfoService confidentialInfoService;
+    private final ConfidentialInfoService infoService;
     private final TimerService timerService;
     private final RestTemplate restTemplate;
+    private final IpService ipService;
+    private final NetworkAdapterService networkAdapterService;
+
+    private static final Integer TRY_SEND_DATA_DELAY_SECONDS = 10;
 
     @Autowired
-    public DataManagementService(ConfidentialInfoService confidentialInfoService, TimerService timerService,
-                                 RestTemplate restTemplate) {
-        this.confidentialInfoService = confidentialInfoService;
+    public DataManagementService(ConfidentialInfoService infoService,
+                                 TimerService timerService,
+                                 RestTemplate restTemplate,
+                                 IpService ipService,
+                                 NetworkAdapterService networkAdapterService) {
+        this.infoService = infoService;
         this.restTemplate = restTemplate;
         this.timerService = timerService;
+        this.ipService = ipService;
+        this.networkAdapterService = networkAdapterService;
     }
 
     public void tryToSendDataToReceiver(List<ConfidentialInfo> confidentialInfo)
             throws BadRequestException, NotFoundException, InternalServerErrorException {
+
+        if (infoService.getInfoCount() > 0) {
+            StartDataTransferringTask startTransferringTask =
+                    new StartDataTransferringTask(infoService,
+                            restTemplate,
+                            ipService,
+                            networkAdapterService);
+
+            timerService.createTask(startTransferringTask, LocalDateTime.now().plusSeconds(TRY_SEND_DATA_DELAY_SECONDS));
+            log.info("Trying to send remaining data from server");
+        }
+
+
         HttpEntity<List<ConfidentialInfo>> confidentialInfoHttpEntity = new HttpEntity<>(confidentialInfo);
         String receiverIP = confidentialInfo.get(0).getReceiverIP();
         String httpAddress = String.format(RECEIVER_URL, receiverIP);
@@ -47,10 +70,10 @@ public class DataManagementService {
         try {
             stringResponseEntity =
                     restTemplate.postForEntity(httpAddress, confidentialInfoHttpEntity, String.class);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             log.error("Could not send data to client [ip = {}]: {}", receiverIP, e.getMessage());
-            confidentialInfoService.addAll(confidentialInfo);
+            infoService.addAll(confidentialInfo);
 
             LocalDateTime nextTryTime = LocalDateTime.now().plusSeconds(WAIT_TIME_IN_MINUTES * 20);
             scheduleNewTransferringTry(nextTryTime, confidentialInfo);
@@ -58,7 +81,7 @@ public class DataManagementService {
         }
         boolean isStatusSuccessful = stringResponseEntity.getStatusCode().is2xxSuccessful();
         if (!isStatusSuccessful) {
-            confidentialInfoService.addAll(confidentialInfo);
+            infoService.addAll(confidentialInfo);
             if (stringResponseEntity.getStatusCode().equals(HttpStatus.BAD_REQUEST)) {
                 log.error("Wrong request to receiver IP. May be body is incorrect");
                 throw new BadRequestException("Wrong request to receiver IP. May be body is incorrect");
@@ -76,7 +99,7 @@ public class DataManagementService {
 
     private void scheduleNewTransferringTry(LocalDateTime timestamp,
                                             List<ConfidentialInfo> confidentialInfo) {
-        NewTryToSendDataTask task = new NewTryToSendDataTask(restTemplate, confidentialInfoService);
+        NewTryToSendDataTask task = new NewTryToSendDataTask(restTemplate, infoService);
         List<Long> ids = new ArrayList<>();
 
         for (ConfidentialInfo currentRecord : confidentialInfo) {

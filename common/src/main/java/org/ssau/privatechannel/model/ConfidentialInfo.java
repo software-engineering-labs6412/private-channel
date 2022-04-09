@@ -3,7 +3,6 @@ package org.ssau.privatechannel.model;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;

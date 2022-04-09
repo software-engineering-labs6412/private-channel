@@ -1,9 +1,7 @@
 package org.ssau.privatechannel.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.ssau.privatechannel.model.ConfidentialInfo;
-import org.ssau.privatechannel.service.ConfidentialInfoService;
 
 import java.util.*;
 
