@@ -2,6 +2,7 @@ package org.ssau.privatechannel.constants;
 
 public interface SystemProperties {
     String INSTANCE = "instance";
+    String HEADER_KEY = "header_key";
     String RECEIVER_IP = "receiver_ip";
     String SERVER_IP = "server_ip";
     String CURRENT_IP = "current_ip";

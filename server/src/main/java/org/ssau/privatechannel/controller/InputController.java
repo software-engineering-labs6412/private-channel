@@ -10,12 +10,16 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.constants.Parameters;
+import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.constants.UrlSchemas;
 import org.ssau.privatechannel.exception.ValidationException;
+import org.ssau.privatechannel.model.AuthorizationKey;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.model.TimeFrame;
+import org.ssau.privatechannel.service.AuthKeyService;
 import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.utils.ClientsHolder;
+import org.ssau.privatechannel.utils.SystemContext;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -27,17 +31,23 @@ public class InputController {
 
     private final RestTemplate restTemplate;
     private final ScheduleService scheduleService;
+    private final AuthKeyService authKeyService;
 
     private static final Random RANDOMIZER = new Random();
 
     @Autowired
-    public InputController(RestTemplate restTemplate, ScheduleService scheduleService) {
+    public InputController(RestTemplate restTemplate,
+                           ScheduleService scheduleService,
+                           AuthKeyService authKeyService) {
         this.restTemplate = restTemplate;
         this.scheduleService = scheduleService;
+        this.authKeyService = authKeyService;
     }
 
     @PostMapping(value = Endpoints.SCHEDULES)
     public ResponseEntity<?> provideSchedules(@RequestBody List<Schedule> schedules) {
+
+        generateNewHeaderKey();
 
         String clientId = schedules.get(0).getClientIp();
         if (Objects.nonNull(scheduleService.findNextByIp(clientId))) {
@@ -179,4 +189,16 @@ public class InputController {
         }
     }
 
+    private void generateNewHeaderKey() {
+        String headerKey = SystemContext.getProperty(SystemProperties.HEADER_KEY);
+
+        AuthorizationKey previousKey = authKeyService.get();
+        if (Objects.isNull(previousKey))
+            log.warn("Auth service returned empty result. Key will be created");
+        else
+            authKeyService.delete(previousKey);
+
+        AuthorizationKey newKey = new AuthorizationKey(null, headerKey);
+        authKeyService.set(newKey);
+    }
 }

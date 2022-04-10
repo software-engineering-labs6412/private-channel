@@ -7,7 +7,6 @@ import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.service.IpService;
 import org.ssau.privatechannel.service.NetworkAdapterService;
 import org.ssau.privatechannel.service.ScheduleService;
-import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.SystemContext;
 import org.ssau.privatechannel.utils.ThreadsHolder;
 
@@ -45,7 +44,6 @@ public class EndDataTransferringTask extends TimerTask {
         String networkInterface = SystemContext.getProperty(SystemProperties.NETWORK);
         networkAdapterService.disableInterfaces(networkInterface);
 
-        KeyHolder.dropKey();
         scheduleService.delete(schedule);
         ThreadsHolder.removeAndStopById(StartDataTransferringTask.THREAD_NAME);
     }

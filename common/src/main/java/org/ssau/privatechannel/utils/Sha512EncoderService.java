@@ -1,4 +1,4 @@
-package org.ssau.privatechannel.service;
+package org.ssau.privatechannel.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -8,10 +8,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 @Slf4j
-@Service
 public class Sha512EncoderService {
 
-    public String getHash(String input) {
+    public static String getHash(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-512");
 

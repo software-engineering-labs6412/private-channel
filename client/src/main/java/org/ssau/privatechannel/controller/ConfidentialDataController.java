@@ -2,11 +2,16 @@ package org.ssau.privatechannel.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.ssau.privatechannel.constants.Endpoints;
+import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.exception.HeaderKeyNotActualException;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.model.ReceivedInformation;
+import org.ssau.privatechannel.service.AuthKeyService;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.ReceivedInfoService;
 import org.ssau.privatechannel.utils.RandomDataGenerator;
@@ -21,21 +26,32 @@ public class ConfidentialDataController {
     private final ReceivedInfoService receivedInfoService;
     private final ConfidentialInfoService infoService;
     private final RandomDataGenerator dataGenerator;
+    private final AuthKeyService authKeyService;
 
     @Autowired
     public ConfidentialDataController(ReceivedInfoService receivedInfoService,
                                       RandomDataGenerator dataGenerator,
-                                      ConfidentialInfoService infoService) {
+                                      ConfidentialInfoService infoService,
+                                      AuthKeyService authKeyService) {
         this.receivedInfoService = receivedInfoService;
         this.dataGenerator = dataGenerator;
         this.infoService = infoService;
+        this.authKeyService = authKeyService;
     }
 
     @PostMapping(value = Endpoints.UPLOAD_DATA, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void uploadData(@RequestBody List<ReceivedInformation> confidentialInfo) {
+    public ResponseEntity<?> uploadData(@RequestHeader(SystemProperties.HEADER_KEY) String headerKey,
+                                        @RequestBody List<ReceivedInformation> confidentialInfo) {
+        try {
+            checkHeaderKey(headerKey);
+        }
+        catch (HeaderKeyNotActualException e) {
+            return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
         log.info("Received data [from IP={}]: {}",
                 confidentialInfo.get(0).getSenderIP(), confidentialInfo);
         receivedInfoService.addAll(confidentialInfo);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping(value = Endpoints.GENERATE_DATA)
@@ -43,6 +59,14 @@ public class ConfidentialDataController {
         log.debug("Generate test data...");
         List<ConfidentialInfo> data = dataGenerator.generate(count);
         infoService.addAll(data);
+    }
+
+    private void checkHeaderKey(String key) throws HeaderKeyNotActualException {
+        if (!authKeyService.isActual(key)) {
+            String errorMessage = String.format("Key %s not actual and not persisted in database", key);
+            log.error(errorMessage);
+            throw new HeaderKeyNotActualException(errorMessage);
+        }
     }
 
 }

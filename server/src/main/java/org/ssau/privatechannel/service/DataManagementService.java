@@ -3,11 +3,13 @@ package org.ssau.privatechannel.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.constants.Endpoints;
+import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.constants.UrlSchemas;
 import org.ssau.privatechannel.exception.BadRequestException;
 import org.ssau.privatechannel.exception.InternalServerErrorException;
@@ -15,6 +17,7 @@ import org.ssau.privatechannel.exception.NotFoundException;
 import org.ssau.privatechannel.firetasks.NewTryToSendDataTask;
 import org.ssau.privatechannel.firetasks.StartDataTransferringTask;
 import org.ssau.privatechannel.model.ConfidentialInfo;
+import org.ssau.privatechannel.utils.SystemContext;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -62,8 +65,10 @@ public class DataManagementService {
             log.info("Trying to send remaining data from server");
         }
 
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(SystemProperties.HEADER_KEY, SystemContext.getProperty(SystemProperties.HEADER_KEY));
 
-        HttpEntity<List<ConfidentialInfo>> confidentialInfoHttpEntity = new HttpEntity<>(confidentialInfo);
+        HttpEntity<List<ConfidentialInfo>> confidentialInfoHttpEntity = new HttpEntity<>(confidentialInfo, headers);
         String receiverIP = confidentialInfo.get(0).getReceiverIP();
         String httpAddress = String.format(RECEIVER_URL, receiverIP);
         ResponseEntity<String> stringResponseEntity;

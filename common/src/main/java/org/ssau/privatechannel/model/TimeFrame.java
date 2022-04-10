@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import static org.ssau.privatechannel.model.TimeFrame.Queries;
@@ -21,7 +22,7 @@ import static org.ssau.privatechannel.model.TimeFrame.QueryNames;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class TimeFrame {
+public class TimeFrame implements Serializable {
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";
 

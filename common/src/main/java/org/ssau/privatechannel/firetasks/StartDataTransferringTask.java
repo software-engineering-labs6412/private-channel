@@ -14,7 +14,6 @@ import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.IpService;
 import org.ssau.privatechannel.service.NetworkAdapterService;
-import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.SystemContext;
 import org.ssau.privatechannel.utils.ThreadsHolder;
 
@@ -39,6 +38,8 @@ public class StartDataTransferringTask extends TimerTask {
 
     private static final Integer WAIT_DELAY = 10;
     private static final Integer WAIT_TIMEOUT_SECONDS = 600;
+
+    private static final Integer DELAY_BETWEEN_BATCHES = 1;
 
     public StartDataTransferringTask(ConfidentialInfoService infoService,
                                      RestTemplate restTemplate,
@@ -104,12 +105,13 @@ public class StartDataTransferringTask extends TimerTask {
                 String serverIp = SystemContext.getProperty(SystemProperties.SERVER_IP);
                 String serverAddress = SCHEMA + serverIp + SEND_DATA_ENDPOINT;
                 HttpHeaders headers = new HttpHeaders();
-                headers.add(Headers.KEY, KeyHolder.getKey());
+                headers.add(SystemProperties.HEADER_KEY, SystemContext.getProperty(SystemProperties.HEADER_KEY));
 
                 HttpEntity<Collection<ConfidentialInfo>> entity = new HttpEntity<>(batch, headers);
 
                 ResponseEntity<String> response;
                 try {
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(DELAY_BETWEEN_BATCHES));
                     response = restTemplate.postForEntity(serverAddress, entity, String.class);
                 }
                 catch (Throwable e) {
@@ -133,9 +135,4 @@ public class StartDataTransferringTask extends TimerTask {
     public void setReceiverIp(String receiverIp) {
         this.receiverIp = receiverIp;
     }
-
-    private static abstract class Headers {
-        public static final String KEY = "X-Request-Key";
-    }
-
 }

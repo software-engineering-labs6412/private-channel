@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 import static org.ssau.privatechannel.model.Schedule.Queries;
@@ -17,7 +18,7 @@ import static org.ssau.privatechannel.model.Schedule.QueryNames;
         query = Queries.FIND_FIRST_BY_IP)
 @NoArgsConstructor
 @ToString
-public class Schedule {
+public class Schedule implements Serializable {
 
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";

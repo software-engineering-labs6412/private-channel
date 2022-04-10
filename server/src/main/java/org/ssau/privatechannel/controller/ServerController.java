@@ -5,15 +5,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.ssau.privatechannel.constants.Endpoints;
+import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.exception.BadRequestException;
+import org.ssau.privatechannel.exception.HeaderKeyNotActualException;
 import org.ssau.privatechannel.exception.InternalServerErrorException;
 import org.ssau.privatechannel.exception.NotFoundException;
 import org.ssau.privatechannel.model.ConfidentialInfo;
+import org.ssau.privatechannel.service.AuthKeyService;
 import org.ssau.privatechannel.service.DataManagementService;
 
 import java.util.List;
@@ -24,15 +24,25 @@ import java.util.List;
 public class ServerController {
 
     private final DataManagementService dataManagementService;
+    private final AuthKeyService authKeyService;
 
     @Autowired
-    public ServerController(DataManagementService dataManagementService) {
+    public ServerController(DataManagementService dataManagementService,
+                            AuthKeyService authKeyService) {
         this.dataManagementService = dataManagementService;
+        this.authKeyService = authKeyService;
     }
 
     @PostMapping(value = Endpoints.UPLOAD_DATA, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> uploadData(@RequestBody List<ConfidentialInfo> confidentialInfo) {
+    public ResponseEntity<?> uploadData(@RequestHeader(SystemProperties.HEADER_KEY) String headerKey,
+                                        @RequestBody List<ConfidentialInfo> confidentialInfo) {
         try {
+            try {
+                checkHeaderKey(headerKey);
+            }
+            catch (HeaderKeyNotActualException e) {
+                return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+            }
             dataManagementService.tryToSendDataToReceiver(confidentialInfo);
         } catch (BadRequestException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -42,6 +52,14 @@ public class ServerController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    private void checkHeaderKey(String key) throws HeaderKeyNotActualException {
+        if (!authKeyService.isActual(key)) {
+            String errorMessage = String.format("Key %s not actual and not persisted in database", key);
+            log.error(errorMessage);
+            throw new HeaderKeyNotActualException(errorMessage);
+        }
     }
 
 }

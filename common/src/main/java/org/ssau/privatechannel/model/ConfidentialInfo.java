@@ -8,6 +8,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Map;
 
 import static org.ssau.privatechannel.model.ConfidentialInfo.Queries;
@@ -29,7 +30,7 @@ import static org.ssau.privatechannel.model.ConfidentialInfo.QueryNames;
 @ToString
 @Builder
 @AllArgsConstructor
-public class ConfidentialInfo {
+public class ConfidentialInfo implements Serializable {
 
     @Id
     @Column(name = Columns.RECORD_ID, nullable = false)

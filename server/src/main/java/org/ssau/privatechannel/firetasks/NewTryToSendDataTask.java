@@ -6,7 +6,6 @@ import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
-import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.SystemContext;
 
 import java.util.Collection;
@@ -35,7 +34,7 @@ public class NewTryToSendDataTask extends TimerTask {
         infoService.deleteBatch(data);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add(Headers.KEY, KeyHolder.getKey());
+        headers.add(SystemProperties.HEADER_KEY, SystemContext.getProperty(SystemProperties.HEADER_KEY));
 
         HttpEntity<?> entity = new HttpEntity<>(data, headers);
         String appPort = SystemContext.getProperty(SystemProperties.APP_PORT);
@@ -51,7 +50,4 @@ public class NewTryToSendDataTask extends TimerTask {
         this.serverAddress = serverAddress;
     }
 
-    private static abstract class Headers {
-        public static final String KEY = "X-Request-Key";
-    }
 }

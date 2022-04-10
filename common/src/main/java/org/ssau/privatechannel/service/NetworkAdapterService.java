@@ -19,7 +19,7 @@ public class NetworkAdapterService {
     public void disableInterfaces(String netInterface) throws IOException {
         String command = String.format(Commands.DISABLE_INTERFACE, netInterface);
         CommandRunner.runQuiet(command);
-        log.info(String.format("%s interface now disabled", netInterface));
+        log.info(String.format("\"%s\" interface now disabled", netInterface));
     }
 
     private static abstract class Commands {

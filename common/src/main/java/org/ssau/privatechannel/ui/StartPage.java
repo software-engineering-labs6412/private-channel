@@ -73,6 +73,10 @@ public class StartPage {
         grid.add(new JLabel("Select instance:"));
         grid.add(instancesComboBox);
 
+        grid.add(new JLabel("Input header key:"));
+        JTextField keyPlaceholder = new JTextField("private_channel_key");
+        grid.add(keyPlaceholder);
+
         // Setup application port
         grid.add(new JLabel("Application port"));
         JTextField appPort = instances[0]
@@ -174,6 +178,7 @@ public class StartPage {
             // Environment setup...
             String applicationPort = appPort.getText();
             String databaseInstanceName = dbInstanceName.getText();
+            String headerKey = keyPlaceholder.getText();
             String postgresUser = pgUser.getText();
             String postgresPassword = pgPassword.getText();
             String postgresPort = dbPort.getText();
@@ -221,6 +226,7 @@ public class StartPage {
 
             SystemContext.setProperty(SystemProperties.APP_PORT, applicationPort);
             SystemContext.setProperty(SystemProperties.DB_INSTANCE, databaseInstanceName);
+            SystemContext.setProperty(SystemProperties.HEADER_KEY, headerKey);
             SystemContext.setProperty(SystemProperties.DB_USER, postgresUser);
             SystemContext.setProperty(SystemProperties.DB_PASSWORD, postgresPassword);
             SystemContext.setProperty(SystemProperties.DB_PORT, postgresPort);
@@ -353,7 +359,7 @@ public class StartPage {
         public static final Point LOCATION_POINT = new Point(100, 100);
 
         // Grid settings
-        public static final Integer ROWS = 11;
+        public static final Integer ROWS = 12;
         public static final Integer COLUMNS = 2;
         public static final Integer H_GAP = 8;
         public static final Integer V_GAP = 5;

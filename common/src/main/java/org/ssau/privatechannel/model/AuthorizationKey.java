@@ -1,23 +1,29 @@
 package org.ssau.privatechannel.model;
 
+import lombok.EqualsAndHashCode;
+import org.ssau.privatechannel.utils.Sha512EncoderService;
+
 import javax.persistence.*;
 
+import static org.ssau.privatechannel.model.AuthorizationKey.*;
+
 @Entity
-@Table(name = AuthorizationKey.Tables.AUTHORIZATION_KEY)
+@Table(name = Tables.AUTHORIZATION_KEY)
 @NamedQuery(
-        name = "AuthorizationKey.get",
-        query = AuthorizationKey.Queries.GET_KEY)
+        name = QueryNames.GET_KEY,
+        query = Queries.GET_KEY)
+@EqualsAndHashCode
 public class AuthorizationKey {
 
     @Id
-    @Column(name = AuthorizationKey.Columns.ID, nullable = false)
+    @Column(name = Columns.ID, nullable = false)
     private Long id;
-    @Column(name = AuthorizationKey.Columns.HASH, nullable = false)
+    @Column(name = Columns.HASH, nullable = false)
     private String hash;
 
-    public AuthorizationKey(Long id, String hash) {
+    public AuthorizationKey(Long id, String key) {
         this.id = id;
-        this.hash = hash;
+        this.hash = Sha512EncoderService.getHash(key);
     }
 
     public AuthorizationKey() {
@@ -37,6 +43,10 @@ public class AuthorizationKey {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public static abstract class QueryNames {
+        public static final String GET_KEY = "AuthorizationKey.get";
     }
 
     public static abstract class Queries {
