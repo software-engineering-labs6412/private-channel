@@ -1,5 +1,7 @@
 package org.ssau.privatechannel.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -18,6 +20,8 @@ import static org.ssau.privatechannel.model.Schedule.QueryNames;
         query = Queries.FIND_FIRST_BY_IP)
 @NoArgsConstructor
 @ToString
+@AllArgsConstructor
+@Builder
 public class Schedule implements Serializable {
 
     @Id

@@ -24,18 +24,12 @@ import java.util.List;
 public class ConfidentialDataController {
 
     private final ReceivedInfoService receivedInfoService;
-    private final ConfidentialInfoService infoService;
-    private final RandomDataGenerator dataGenerator;
     private final AuthKeyService authKeyService;
 
     @Autowired
     public ConfidentialDataController(ReceivedInfoService receivedInfoService,
-                                      RandomDataGenerator dataGenerator,
-                                      ConfidentialInfoService infoService,
                                       AuthKeyService authKeyService) {
         this.receivedInfoService = receivedInfoService;
-        this.dataGenerator = dataGenerator;
-        this.infoService = infoService;
         this.authKeyService = authKeyService;
     }
 
@@ -48,17 +42,11 @@ public class ConfidentialDataController {
         catch (HeaderKeyNotActualException e) {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
         }
+
         log.info("Received data [from IP={}]: {}",
                 confidentialInfo.get(0).getSenderIP(), confidentialInfo);
         receivedInfoService.addAll(confidentialInfo);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PostMapping(value = Endpoints.GENERATE_DATA)
-    public void generate(@PathVariable("count") Integer count) {
-        log.debug("Generate test data...");
-        List<ConfidentialInfo> data = dataGenerator.generate(count);
-        infoService.addAll(data);
     }
 
     private void checkHeaderKey(String key) throws HeaderKeyNotActualException {
