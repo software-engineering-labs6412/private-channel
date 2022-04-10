@@ -1,5 +1,6 @@
 package org.ssau.privatechannel;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.ssau.privatechannel.constants.SystemProperties;
@@ -11,13 +12,13 @@ import java.io.IOException;
 
 import static org.ssau.privatechannel.utils.DbClusterInstaller.Instances;
 
+@Slf4j
 @SpringBootApplication
 public class Client {
 
     private static final String CURRENT_INSTANCE = "Client";
 
     public static void main(String[] args) {
-
         SystemContext.setProperty(SystemProperties.INSTANCE, CURRENT_INSTANCE);
         try {
             StartPage.show();

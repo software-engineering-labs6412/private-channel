@@ -6,31 +6,30 @@ import org.ssau.privatechannel.model.ConfidentialInfo;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Repository
 public class ConfidentialInfoRepository extends AbstractRepository {
 
-    public Collection<ConfidentialInfo> findAllByIds(List<Long> ids) {
+    public List<ConfidentialInfo> findAllByIds(List<Long> ids) {
         return entityManager.createNamedQuery(NamedQueries.FIND_ALL_BY_IDS,
                 ConfidentialInfo.class).setParameter(QueryParams.IDS, ids).getResultList();
     }
 
-    public Collection<ConfidentialInfo> nextBatch() {
+    public List<ConfidentialInfo> nextBatch() {
         return entityManager.createNamedQuery(NamedQueries.GET_BATCH,
                 ConfidentialInfo.class).getResultList();
     }
 
     @Transactional
-    public void deleteBatch(Collection<ConfidentialInfo> batch) {
+    public void deleteBatch(List<ConfidentialInfo> batch) {
         List<Long> ids = new ArrayList<>();
 
         for (ConfidentialInfo record : batch) {
             ids.add(record.getId());
         }
 
-        Collection<ConfidentialInfo> allByIds = findAllByIds(ids);
+        List<ConfidentialInfo> allByIds = findAllByIds(ids);
 
         for (ConfidentialInfo currentRecord : allByIds) {
             entityManager.remove(currentRecord);

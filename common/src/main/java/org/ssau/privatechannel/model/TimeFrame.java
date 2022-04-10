@@ -26,7 +26,6 @@ import static org.ssau.privatechannel.model.TimeFrame.QueryNames;
 @Builder
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class TimeFrame implements Serializable {
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";

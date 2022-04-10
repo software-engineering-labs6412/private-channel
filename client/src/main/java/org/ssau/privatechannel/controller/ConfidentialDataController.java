@@ -12,6 +12,8 @@ import org.ssau.privatechannel.exception.HeaderKeyNotActualException;
 import org.ssau.privatechannel.model.ReceivedInformation;
 import org.ssau.privatechannel.service.AuthKeyService;
 import org.ssau.privatechannel.service.ReceivedInfoService;
+import org.ssau.privatechannel.utils.AESUtil;
+import org.ssau.privatechannel.utils.KeyHolder;
 
 import java.util.List;
 
@@ -38,6 +40,15 @@ public class ConfidentialDataController {
         }
         catch (HeaderKeyNotActualException e) {
             return new ResponseEntity<>(HttpStatus.EXPECTATION_FAILED);
+        }
+
+        try {
+            confidentialInfo = AESUtil.decryptBatchInfo(confidentialInfo,
+                    KeyHolder.getKey(),
+                    KeyHolder.getIv());
+        } catch (Exception e) {
+            log.error("Error during data decryption", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         log.info("Received data [from IP={}]: {}",

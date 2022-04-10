@@ -23,7 +23,6 @@ import static org.ssau.privatechannel.model.Schedule.QueryNames;
 @Builder
 @Getter
 @Setter
-@RequiredArgsConstructor
 public class Schedule implements Serializable {
 
     @Id

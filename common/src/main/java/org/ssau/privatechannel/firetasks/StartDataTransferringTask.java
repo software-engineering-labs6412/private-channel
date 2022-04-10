@@ -14,10 +14,12 @@ import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.IpService;
 import org.ssau.privatechannel.service.NetworkAdapterService;
+import org.ssau.privatechannel.utils.AESUtil;
+import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.SystemContext;
 import org.ssau.privatechannel.utils.ThreadsHolder;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -63,7 +65,13 @@ public class StartDataTransferringTask extends TimerTask {
             log.info("Data transferring started between clients with ips {} and {}", senderIp, receiverIp);
             int currentWaitTime = 0;
             while (true) {
-                Collection<ConfidentialInfo> batch = infoService.nextBatch();
+                List<ConfidentialInfo> batch = infoService.nextBatch();
+                try {
+                    batch = AESUtil.encryptBatchInfo(batch, KeyHolder.getKey(), KeyHolder.getIv());
+                } catch (Exception e) {
+                    log.error("Error during data encryption", e);
+                    break;
+                }
 
                 if (batch.isEmpty()) {
 
@@ -99,7 +107,6 @@ public class StartDataTransferringTask extends TimerTask {
                     }
                     else
                         next.setReceiverIP(receiverIp);
-
                 }
 
                 String serverIp = SystemContext.getProperty(SystemProperties.SERVER_IP);
@@ -107,7 +114,7 @@ public class StartDataTransferringTask extends TimerTask {
                 HttpHeaders headers = new HttpHeaders();
                 headers.add(SystemProperties.HEADER_KEY, SystemContext.getProperty(SystemProperties.HEADER_KEY));
 
-                HttpEntity<Collection<ConfidentialInfo>> entity = new HttpEntity<>(batch, headers);
+                HttpEntity<List<ConfidentialInfo>> entity = new HttpEntity<>(batch, headers);
 
                 ResponseEntity<String> response;
                 try {

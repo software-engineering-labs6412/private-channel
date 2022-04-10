@@ -1,10 +1,14 @@
 package org.ssau.privatechannel.ui;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.ssau.privatechannel.constants.SystemProperties;
+import org.ssau.privatechannel.exception.BadAlgorythmLengthException;
 import org.ssau.privatechannel.exception.ValidationException;
 import org.ssau.privatechannel.service.IpService;
+import org.ssau.privatechannel.utils.AESUtil;
 import org.ssau.privatechannel.utils.ClientsHolder;
+import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.SystemContext;
 
 import javax.swing.*;
@@ -12,7 +16,11 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -20,6 +28,8 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class StartPage {
+
+    public static final String KEY_FILE_NAME = "C:\\Users\\soboi\\Desktop\\secret_key.pckey";
 
     public static void show() throws IOException {
 
@@ -106,6 +116,8 @@ public class StartPage {
 
         JTextField serverIp = new JTextField("127.0.0.1:8080");
         JTextField receiverIp = new JTextField("127.0.0.1:8081");
+        JTextField keyFilePath = new JTextField();
+        keyFilePath.setToolTipText("If empty then will be created a new one");
 
         // Server and other client IPs (only for clients)
         if (instances[0].equals(Instances.CLIENT)) {
@@ -113,6 +125,8 @@ public class StartPage {
             grid.add(serverIp);
             grid.add(new JLabel("Receiver ip:"));
             grid.add(receiverIp);
+            grid.add(new JLabel("Secret key file path:"));
+            grid.add(keyFilePath);
         }
 
         JButton startButton = new JButton("Start app");
@@ -195,11 +209,37 @@ public class StartPage {
                     validateAddress(serverIpAddress);
                     validateAddress(receiverIpAddress);
                 } catch (ValidationException e) {
+                    log.error("Error during addresses validation", e);
                     throw new RuntimeException(e);
                 }
 
                 SystemContext.setProperty(SystemProperties.SERVER_IP, serverIpAddress);
                 SystemContext.setProperty(SystemProperties.RECEIVER_IP, receiverIpAddress);
+
+                if (!keyFilePath.getText().isEmpty()) {
+                    byte[] key;
+                    try {
+                        key = Files.readAllBytes(Paths.get(keyFilePath.getText()));
+                        KeyHolder.setKey(key);
+                        KeyHolder.setIv(AESUtil.generateIv());
+                        log.debug("Secret key picked up from file");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                else {
+                    try {
+                        KeyHolder.setKey(AESUtil.generateKey(DefaultParams.SECRET_KEY_LENGTH));
+                        KeyHolder.setIv(AESUtil.generateIv());
+
+                        writeToFile(KEY_FILE_NAME, KeyHolder.getKey().getEncoded());
+                        log.info("New secret key generated and saved to file {}", KEY_FILE_NAME);
+                    } catch (NoSuchAlgorithmException | BadAlgorythmLengthException | IOException e) {
+                        log.error("Error during secret key generation", e);
+                        throw new RuntimeException(e);
+                    }
+                }
+
             } else {
                 try {
                     String clients = clientsIpsTextArea.getText().substring(1);
@@ -359,7 +399,7 @@ public class StartPage {
         public static final Point LOCATION_POINT = new Point(100, 100);
 
         // Grid settings
-        public static final Integer ROWS = 12;
+        public static final Integer ROWS = 13;
         public static final Integer COLUMNS = 2;
         public static final Integer H_GAP = 8;
         public static final Integer V_GAP = 5;
@@ -371,10 +411,15 @@ public class StartPage {
 
         // Default params
         public static final String DEFAULT_APP_PORT = "8080";
+        public static final int SECRET_KEY_LENGTH = 256;
     }
 
     private static abstract class Instances {
         public static final String CLIENT = "Client";
         public static final String SERVER = "Server";
+    }
+
+    private static void writeToFile(String filename, byte[] array) throws IOException {
+        FileUtils.writeByteArrayToFile(new File(filename), array);
     }
 }

@@ -13,7 +13,6 @@ import org.ssau.privatechannel.model.TimeFrame;
 import org.ssau.privatechannel.utils.SystemContext;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -43,7 +42,7 @@ public class TasksService {
     }
 
     public void plan(Schedule schedule) {
-        Collection<TimeFrame> timeFrames = schedule.getTimeFrames();
+        List<TimeFrame> timeFrames = schedule.getTimeFrames();
         for (TimeFrame timeFrame : timeFrames) {
             LocalDateTime startTime = timeFrame.getStartTime();
             LocalDateTime endTime = timeFrame.getEndTime();

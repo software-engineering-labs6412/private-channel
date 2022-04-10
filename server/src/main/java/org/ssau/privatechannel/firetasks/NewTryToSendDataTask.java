@@ -8,7 +8,6 @@ import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.utils.SystemContext;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.TimerTask;
 
@@ -30,7 +29,7 @@ public class NewTryToSendDataTask extends TimerTask {
     @Override
     public void run() {
 
-        Collection<ConfidentialInfo> data = infoService.findAllByIds(ids);
+        List<ConfidentialInfo> data = infoService.findAllByIds(ids);
         infoService.deleteBatch(data);
 
         HttpHeaders headers = new HttpHeaders();
