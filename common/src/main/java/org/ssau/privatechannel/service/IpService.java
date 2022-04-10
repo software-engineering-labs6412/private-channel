@@ -18,11 +18,6 @@ import java.util.regex.Pattern;
 @Service
 public class IpService {
 
-    public void enableFirewall() throws IOException {
-        CommandRunner.run(Commands.ENABLE_FIREWALL);
-        log.info("Firewall enabled");
-    }
-
     public Map<String, String> getAllInternalRegisteredIp() throws IOException {
         Map<String, String> result = new HashMap<>();
 
@@ -61,12 +56,6 @@ public class IpService {
         log.info(String.format("IP address \"%s\" blocked with rule name = \"%s\"", ipAddress.getIp(), ruleName));
     }
 
-    public void blockHttpPort(String ruleName) throws IOException {
-        String command = String.format(Commands.BLOCK_HTTP_PORT, ruleName, Ports.HTTP);
-        CommandRunner.run(command);
-        log.info(String.format("Http port \"%s\" blocked with rule name = \"%s\"", Ports.HTTP, ruleName));
-    }
-
     public void deleteRuleByName(String ruleName) throws IOException {
         String command = String.format(Commands.DELETE_RULE, ruleName);
         CommandRunner.run(command);
@@ -82,11 +71,8 @@ public class IpService {
     private static abstract class Commands {
         public static final String
                 GET_ALL_INTERFACES_INFO = "ipconfig",
-                ENABLE_FIREWALL = "netsh advfirewall set allprofiles state off",
                 BLOCK_IP_ADDRESS = "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP "
                         + "localport=%s action=block dir=IN remoteip=%s",
-                BLOCK_HTTP_PORT =
-                        "netsh advfirewall firewall add rule name=\"%s\" protocol=TCP localport=%s action=block dir=IN",
                 DELETE_RULE =
                         "netsh advfirewall firewall delete rule name=\"%s\"";
     }

@@ -20,14 +20,11 @@ import static org.ssau.privatechannel.model.Schedule.QueryNames;
 @ToString
 public class Schedule implements Serializable {
 
-    private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
-    private static final String TIMEZONE = "Europe/Samara";
-
     @Id
     @Column(name = Columns.SCHEDULE_ID, nullable = false)
     private Long id;
 
-    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<TimeFrame> timeFrames;
 
     @Column(name = Columns.CLIENT_IP)
@@ -75,7 +72,6 @@ public class Schedule implements Serializable {
 
     public static abstract class Columns {
         public static final String SCHEDULE_ID = "schedule_id";
-        public static final String TIME_END = "time_end";
         public static final String CLIENT_IP = "client_ip";
     }
 }

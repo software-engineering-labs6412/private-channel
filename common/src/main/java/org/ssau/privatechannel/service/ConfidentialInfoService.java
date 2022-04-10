@@ -23,10 +23,6 @@ public class ConfidentialInfoService {
         this.infoRepository = infoRepository;
     }
 
-    public Collection<ConfidentialInfo> findAll() {
-        return infoRepository.findAll();
-    }
-
     public Collection<ConfidentialInfo> findAllByIds(List<Long> ids) {
         return infoRepository.findAllByIds(ids);
     }
@@ -39,13 +35,6 @@ public class ConfidentialInfoService {
         infoRepository.deleteBatch(batch);
     }
 
-    public void add(ConfidentialInfo info) {
-        if (Objects.isNull(info.getId())) {
-            info.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
-        }
-        infoRepository.add(info);
-    }
-
     public void addAll(List<ConfidentialInfo> info) {
         for (ConfidentialInfo confidentialInfo : info) {
             if (Objects.isNull(confidentialInfo.getId())) {
@@ -53,10 +42,6 @@ public class ConfidentialInfoService {
             }
         }
         infoRepository.addAll(info);
-    }
-
-    public void delete(ConfidentialInfo info) {
-        infoRepository.delete(info);
     }
 
     public int getInfoCount() {

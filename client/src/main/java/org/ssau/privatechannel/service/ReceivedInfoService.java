@@ -18,31 +18,7 @@ public class ReceivedInfoService {
         this.infoRepository = infoRepository;
     }
 
-    public Collection<ReceivedInformation> findAll() {
-        return infoRepository.findAll();
-    }
-
-    public Collection<ReceivedInformation> findAllByIds(List<Long> ids) {
-        return infoRepository.findAllByIds(ids);
-    }
-
-    public Collection<ReceivedInformation> nextBatch() {
-        return infoRepository.nextBatch();
-    }
-
-    public void deleteBatch(Collection<ReceivedInformation> batch) {
-        infoRepository.deleteBatch(batch);
-    }
-
-    public void add(ReceivedInformation info) {
-        infoRepository.add(info);
-    }
-
     public void addAll(List<ReceivedInformation> info) {
         infoRepository.addAll(info);
-    }
-
-    public void delete(ReceivedInformation info) {
-        infoRepository.delete(info);
     }
 }

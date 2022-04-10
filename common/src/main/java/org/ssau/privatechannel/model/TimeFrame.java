@@ -1,6 +1,7 @@
 package org.ssau.privatechannel.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -41,6 +42,11 @@ public class TimeFrame implements Serializable {
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime endTime;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
 
     public boolean isIntersectsWith(TimeFrame timeFrame) {
         return isMomentInTimeFrame(timeFrame.startTime) || isMomentInTimeFrame(timeFrame.endTime) ||
@@ -92,5 +98,13 @@ public class TimeFrame implements Serializable {
         public static final String TIME_FRAME_ID = "time_frame_id";
         public static final String START_TIME = "start_time";
         public static final String END_TIME = "end_time";
+    }
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
     }
 }

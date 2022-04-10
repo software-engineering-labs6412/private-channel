@@ -1,9 +1,11 @@
 package org.ssau.privatechannel.model;
 
-import lombok.EqualsAndHashCode;
+import org.hibernate.Hibernate;
 import org.ssau.privatechannel.utils.Sha512EncoderService;
 
 import javax.persistence.*;
+
+import java.util.Objects;
 
 import static org.ssau.privatechannel.model.AuthorizationKey.*;
 
@@ -12,12 +14,12 @@ import static org.ssau.privatechannel.model.AuthorizationKey.*;
 @NamedQuery(
         name = QueryNames.GET_KEY,
         query = Queries.GET_KEY)
-@EqualsAndHashCode
 public class AuthorizationKey {
 
     @Id
     @Column(name = Columns.ID, nullable = false)
     private Long id;
+
     @Column(name = Columns.HASH, nullable = false)
     private String hash;
 
@@ -60,5 +62,18 @@ public class AuthorizationKey {
     private static abstract class Columns {
         public static final String ID = "id";
         public static final String HASH = "hash";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        AuthorizationKey that = (AuthorizationKey) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -14,6 +14,7 @@ import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.model.TimeFrame;
 import org.ssau.privatechannel.repository.ScheduleRepository;
 import org.ssau.privatechannel.service.AuthKeyService;
+import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.service.TasksService;
 import org.ssau.privatechannel.utils.SystemContext;
 
@@ -24,15 +25,15 @@ import java.util.Objects;
 @RequestMapping(path = Endpoints.API_V1_CLIENT)
 public class ScheduleController {
 
-    private final ScheduleRepository scheduleRepository;
+    private final ScheduleService scheduleService;
     private final TasksService tasksService;
     private final AuthKeyService authKeyService;
 
     @Autowired
-    public ScheduleController(ScheduleRepository scheduleRepository,
+    public ScheduleController(ScheduleService scheduleService,
                               TasksService tasksService,
                               AuthKeyService authKeyService) {
-        this.scheduleRepository = scheduleRepository;
+        this.scheduleService = scheduleService;
         this.tasksService = tasksService;
         this.authKeyService = authKeyService;
     }
@@ -47,7 +48,7 @@ public class ScheduleController {
             schedule.getTimeFrames().set(i, timeFrame);
         }
 
-        scheduleRepository.add(schedule);
+        scheduleService.add(schedule);
         tasksService.plan(schedule);
     }
 

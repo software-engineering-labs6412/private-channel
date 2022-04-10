@@ -3,6 +3,7 @@ package org.ssau.privatechannel.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.ssau.privatechannel.constants.Parameters;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.model.TimeFrame;
@@ -48,6 +49,11 @@ public class ScheduleService {
         if (Objects.isNull(schedule.getId())) {
             schedule.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
         }
+
+        for (TimeFrame timeFrame : schedule.getTimeFrames()) {
+            timeFrame.setSchedule(schedule);
+        }
+
         scheduleRepository.add(schedule);
     }
 
@@ -56,16 +62,19 @@ public class ScheduleService {
             if (Objects.isNull(schedule.getId())) {
                 schedule.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
             }
+            for (TimeFrame timeFrame : schedule.getTimeFrames()) {
+                timeFrame.setSchedule(schedule);
+            }
         }
+
         scheduleRepository.addAll(schedules);
     }
 
+    @Transactional
     public void delete(Schedule schedule) {
+        List<TimeFrame> timeFrames = timeFrameRepository.findAllForSchedule(schedule.getId());
+        timeFrameRepository.deleteAll(timeFrames);
         scheduleRepository.delete(schedule);
-    }
-
-    public void edit(Schedule schedule) {
-        scheduleRepository.edit(schedule);
     }
 
     public boolean isActualSchedule(Schedule schedule) {
