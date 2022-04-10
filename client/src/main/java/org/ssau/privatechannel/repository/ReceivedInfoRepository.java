@@ -4,8 +4,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.ssau.privatechannel.model.ReceivedInformation;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @Repository

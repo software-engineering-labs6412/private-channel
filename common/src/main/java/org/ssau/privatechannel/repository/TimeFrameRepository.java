@@ -1,8 +1,6 @@
 package org.ssau.privatechannel.repository;
 
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.model.TimeFrame;
 
 import java.util.List;

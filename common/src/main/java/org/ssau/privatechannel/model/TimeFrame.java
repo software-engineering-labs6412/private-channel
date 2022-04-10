@@ -6,14 +6,13 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import static org.ssau.privatechannel.model.TimeFrame.Queries;
 import static org.ssau.privatechannel.model.TimeFrame.QueryNames;
@@ -25,6 +24,9 @@ import static org.ssau.privatechannel.model.TimeFrame.QueryNames;
 @AllArgsConstructor
 @ToString
 @Builder
+@Getter
+@Setter
+@RequiredArgsConstructor
 public class TimeFrame implements Serializable {
     private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private static final String TIMEZONE = "Europe/Samara";
@@ -83,6 +85,14 @@ public class TimeFrame implements Serializable {
         this.id = id;
     }
 
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
+
     public static abstract class Queries {
         public static final String SELECT_TIMEFRAMES_FOR_SCHEDULE =
                 "select * from time_frame where schedule_id = :schedule_id";
@@ -102,11 +112,16 @@ public class TimeFrame implements Serializable {
         public static final String END_TIME = "end_time";
     }
 
-    public Schedule getSchedule() {
-        return schedule;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        TimeFrame timeFrame = (TimeFrame) o;
+        return id != null && Objects.equals(id, timeFrame.id);
     }
 
-    public void setSchedule(Schedule schedule) {
-        this.schedule = schedule;
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

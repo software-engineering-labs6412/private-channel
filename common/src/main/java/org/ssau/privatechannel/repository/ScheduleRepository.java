@@ -5,7 +5,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.ssau.privatechannel.model.Schedule;
 
 import javax.persistence.NoResultException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 

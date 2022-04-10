@@ -13,7 +13,6 @@ import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.service.TasksService;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 class ScheduleControllerTest {

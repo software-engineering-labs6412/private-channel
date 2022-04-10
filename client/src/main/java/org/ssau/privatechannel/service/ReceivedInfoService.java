@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.ssau.privatechannel.model.ReceivedInformation;
 import org.ssau.privatechannel.repository.ReceivedInfoRepository;
 
-import java.util.Collection;
 import java.util.List;
 
 @Service

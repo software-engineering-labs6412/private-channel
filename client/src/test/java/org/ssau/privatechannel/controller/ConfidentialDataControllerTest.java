@@ -1,23 +1,17 @@
 package org.ssau.privatechannel.controller;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.ssau.privatechannel.model.ReceivedInformation;
 import org.ssau.privatechannel.service.AuthKeyService;
-import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.ReceivedInfoService;
 import org.ssau.privatechannel.utils.RandomDataGenerator;
 
 import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ConfidentialDataControllerTest {
 

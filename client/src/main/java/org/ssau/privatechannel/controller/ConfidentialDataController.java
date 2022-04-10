@@ -9,12 +9,9 @@ import org.springframework.web.bind.annotation.*;
 import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.exception.HeaderKeyNotActualException;
-import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.model.ReceivedInformation;
 import org.ssau.privatechannel.service.AuthKeyService;
-import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.ReceivedInfoService;
-import org.ssau.privatechannel.utils.RandomDataGenerator;
 
 import java.util.List;
 

@@ -10,17 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.ssau.privatechannel.constants.Endpoints;
-import org.ssau.privatechannel.constants.SystemProperties;
-import org.ssau.privatechannel.model.AuthorizationKey;
 import org.ssau.privatechannel.model.Schedule;
-import org.ssau.privatechannel.model.TimeFrame;
-import org.ssau.privatechannel.repository.ScheduleRepository;
 import org.ssau.privatechannel.service.AuthKeyService;
 import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.service.TasksService;
-import org.ssau.privatechannel.utils.SystemContext;
-
-import java.util.Objects;
 
 @Slf4j
 @RestController

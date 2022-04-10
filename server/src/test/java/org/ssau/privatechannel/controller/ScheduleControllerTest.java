@@ -13,8 +13,6 @@ import org.ssau.privatechannel.service.ScheduleService;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ScheduleControllerTest {
 
     private final ScheduleService scheduleService = Mockito.mock(ScheduleService.class);

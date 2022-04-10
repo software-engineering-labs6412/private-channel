@@ -12,8 +12,6 @@ import org.ssau.privatechannel.service.DataManagementService;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ServerControllerTest {
 
     private final DataManagementService dataManagementService = Mockito.mock(DataManagementService.class);
@@ -38,21 +36,21 @@ class ServerControllerTest {
 
     @Test
     void uploadData() {
-        ResponseEntity<?> response = serverController.uploadData(TEST_HEADER_KEY, generate(TEST_DATA_COUNT));
+        ResponseEntity<?> response = serverController.uploadData(TEST_HEADER_KEY, generate());
         Assertions.assertEquals(response.getStatusCode(), HttpStatus.OK,
                 "Expected: " + HttpStatus.OK + ", actual: " + response.getStatusCode());
     }
 
     @Test
     void uploadData_wrong() {
-        ResponseEntity<?> response = serverController.uploadData(TEST_WRONG_KEY, generate(TEST_DATA_COUNT));
+        ResponseEntity<?> response = serverController.uploadData(TEST_WRONG_KEY, generate());
         Assertions.assertEquals(response.getStatusCode(), HttpStatus.EXPECTATION_FAILED,
                 "Expected: " + HttpStatus.EXPECTATION_FAILED + ", actual: " + response.getStatusCode());
     }
 
-    private List<ConfidentialInfo> generate(int count) {
+    private List<ConfidentialInfo> generate() {
         List<ConfidentialInfo> info = new ArrayList<>();
-        for (int i = 0; i < count; ++i) {
+        for (int i = 0; i < ServerControllerTest.TEST_DATA_COUNT; ++i) {
             ConfidentialInfo currentRecord = ConfidentialInfo.builder()
                     .id(null)
                     .data(generateRandomData())

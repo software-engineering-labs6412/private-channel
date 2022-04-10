@@ -1,13 +1,12 @@
 package org.ssau.privatechannel.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import static org.ssau.privatechannel.model.Schedule.Queries;
 import static org.ssau.privatechannel.model.Schedule.QueryNames;
@@ -22,6 +21,9 @@ import static org.ssau.privatechannel.model.Schedule.QueryNames;
 @ToString
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
+@RequiredArgsConstructor
 public class Schedule implements Serializable {
 
     @Id
@@ -77,5 +79,18 @@ public class Schedule implements Serializable {
     public static abstract class Columns {
         public static final String SCHEDULE_ID = "schedule_id";
         public static final String CLIENT_IP = "client_ip";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Schedule schedule = (Schedule) o;
+        return id != null && Objects.equals(id, schedule.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

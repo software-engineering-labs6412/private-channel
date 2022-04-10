@@ -1,7 +1,6 @@
 package org.ssau.privatechannel.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -17,13 +16,13 @@ public class Sha512EncoderService {
             byte[] messageDigest = md.digest(input.getBytes());
 
             BigInteger no = new BigInteger(1, messageDigest);
-            String hashtext = no.toString(16);
+            StringBuilder hashtext = new StringBuilder(no.toString(16));
 
             while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
+                hashtext.insert(0, "0");
             }
 
-            return hashtext;
+            return hashtext.toString();
         } catch (NoSuchAlgorithmException e) {
             log.error("Data encryption failed", e);
             throw new RuntimeException(e);

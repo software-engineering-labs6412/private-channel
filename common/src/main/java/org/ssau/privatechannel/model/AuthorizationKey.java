@@ -4,7 +4,6 @@ import org.hibernate.Hibernate;
 import org.ssau.privatechannel.utils.Sha512EncoderService;
 
 import javax.persistence.*;
-
 import java.util.Objects;
 
 import static org.ssau.privatechannel.model.AuthorizationKey.*;

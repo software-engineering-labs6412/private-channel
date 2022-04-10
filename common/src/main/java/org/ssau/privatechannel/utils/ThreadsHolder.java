@@ -2,7 +2,6 @@ package org.ssau.privatechannel.utils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public abstract class ThreadsHolder {
     private static final Map<String, Thread> RUNNING_THREADS = new HashMap<>();

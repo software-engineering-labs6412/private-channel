@@ -10,17 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.ssau.privatechannel.constants.Endpoints;
 import org.ssau.privatechannel.constants.Parameters;
-import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.constants.UrlSchemas;
 import org.ssau.privatechannel.exception.ValidationException;
-import org.ssau.privatechannel.model.AuthorizationKey;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.model.TimeFrame;
 import org.ssau.privatechannel.service.AuthKeyService;
 import org.ssau.privatechannel.service.ScheduleService;
 import org.ssau.privatechannel.service.ScheduleValidatorService;
 import org.ssau.privatechannel.utils.ClientsHolder;
-import org.ssau.privatechannel.utils.SystemContext;
 
 import java.time.LocalDateTime;
 import java.util.*;
