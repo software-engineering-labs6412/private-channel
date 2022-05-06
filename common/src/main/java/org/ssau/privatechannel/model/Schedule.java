@@ -1,10 +1,12 @@
 package org.ssau.privatechannel.model;
 
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
+import java.util.Objects;
 
 import static org.ssau.privatechannel.model.Schedule.Queries;
 import static org.ssau.privatechannel.model.Schedule.QueryNames;
@@ -17,16 +19,17 @@ import static org.ssau.privatechannel.model.Schedule.QueryNames;
         query = Queries.FIND_FIRST_BY_IP)
 @NoArgsConstructor
 @ToString
-public class Schedule {
-
-    private static final String DATE_PATTERN = "dd-MM-yyyy HH:mm:ss";
-    private static final String TIMEZONE = "Europe/Samara";
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
+public class Schedule implements Serializable {
 
     @Id
     @Column(name = Columns.SCHEDULE_ID, nullable = false)
     private Long id;
 
-    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "id", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<TimeFrame> timeFrames;
 
     @Column(name = Columns.CLIENT_IP)
@@ -74,7 +77,19 @@ public class Schedule {
 
     public static abstract class Columns {
         public static final String SCHEDULE_ID = "schedule_id";
-        public static final String TIME_END = "time_end";
         public static final String CLIENT_IP = "client_ip";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Schedule schedule = (Schedule) o;
+        return id != null && Objects.equals(id, schedule.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

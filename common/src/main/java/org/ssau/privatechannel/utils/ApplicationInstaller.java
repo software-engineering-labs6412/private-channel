@@ -3,7 +3,6 @@ package org.ssau.privatechannel.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.exception.DockerMissingException;
-import org.ssau.privatechannel.exception.InvalidAppInstallationModeException;
 import org.ssau.privatechannel.exception.InvalidInstanceTypeException;
 
 import java.io.IOException;
@@ -14,7 +13,7 @@ import static org.ssau.privatechannel.utils.DbClusterInstaller.Instances;
 public class ApplicationInstaller {
 
     public static void run(String instance) throws IOException, InterruptedException,
-            DockerMissingException, InvalidAppInstallationModeException, InvalidInstanceTypeException {
+            DockerMissingException, InvalidInstanceTypeException {
         DockerInstaller.run();
 
         SystemContext.setProperty(SystemProperties.DB_URL, DefaultDbParams.DEFAULT_DB_URL);

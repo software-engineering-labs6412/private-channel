@@ -1,14 +1,15 @@
 package org.ssau.privatechannel.model;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.ssau.privatechannel.model.ConfidentialInfo.Queries;
 import static org.ssau.privatechannel.model.ConfidentialInfo.QueryNames;
@@ -29,7 +30,9 @@ import static org.ssau.privatechannel.model.ConfidentialInfo.QueryNames;
 @ToString
 @Builder
 @AllArgsConstructor
-public class ConfidentialInfo {
+@Getter
+@Setter
+public class ConfidentialInfo implements Serializable {
 
     @Id
     @Column(name = Columns.RECORD_ID, nullable = false)
@@ -101,5 +104,18 @@ public class ConfidentialInfo {
         public static final String SENDER_IP = "sender_ip";
         public static final String RECEIVER_IP = "receiver_ip";
         public static final String TEXT_DATA = "text_data";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        ConfidentialInfo that = (ConfidentialInfo) o;
+        return id != null && Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

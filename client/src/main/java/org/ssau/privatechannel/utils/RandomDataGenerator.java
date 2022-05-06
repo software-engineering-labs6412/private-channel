@@ -2,6 +2,7 @@ package org.ssau.privatechannel.utils;
 
 import org.springframework.stereotype.Component;
 import org.ssau.privatechannel.model.ConfidentialInfo;
+import org.ssau.privatechannel.model.ReceivedInformation;
 
 import java.util.*;
 
@@ -14,6 +15,18 @@ public class RandomDataGenerator {
         List<ConfidentialInfo> info = new ArrayList<>();
         for (int i = 0; i < count; ++i) {
             ConfidentialInfo currentRecord = ConfidentialInfo.builder()
+                    .id(null)
+                    .data(generateRandomData())
+                    .build();
+            info.add(currentRecord);
+        }
+        return info;
+    }
+
+    public List<ReceivedInformation> generateReceivedData(int count) {
+        List<ReceivedInformation> info = new ArrayList<>();
+        for (int i = 0; i < count; ++i) {
+            ReceivedInformation currentRecord = ReceivedInformation.builder()
                     .id(null)
                     .data(generateRandomData())
                     .build();

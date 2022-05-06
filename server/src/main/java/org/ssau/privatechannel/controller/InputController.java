@@ -14,7 +14,9 @@ import org.ssau.privatechannel.constants.UrlSchemas;
 import org.ssau.privatechannel.exception.ValidationException;
 import org.ssau.privatechannel.model.Schedule;
 import org.ssau.privatechannel.model.TimeFrame;
+import org.ssau.privatechannel.service.AuthKeyService;
 import org.ssau.privatechannel.service.ScheduleService;
+import org.ssau.privatechannel.service.ScheduleValidatorService;
 import org.ssau.privatechannel.utils.ClientsHolder;
 
 import java.time.LocalDateTime;
@@ -27,17 +29,26 @@ public class InputController {
 
     private final RestTemplate restTemplate;
     private final ScheduleService scheduleService;
+    private final AuthKeyService authKeyService;
+    private final ScheduleValidatorService validatorService;
 
     private static final Random RANDOMIZER = new Random();
 
     @Autowired
-    public InputController(RestTemplate restTemplate, ScheduleService scheduleService) {
+    public InputController(RestTemplate restTemplate,
+                           ScheduleService scheduleService,
+                           AuthKeyService authKeyService,
+                           ScheduleValidatorService validatorService) {
         this.restTemplate = restTemplate;
         this.scheduleService = scheduleService;
+        this.authKeyService = authKeyService;
+        this.validatorService = validatorService;
     }
 
     @PostMapping(value = Endpoints.SCHEDULES)
     public ResponseEntity<?> provideSchedules(@RequestBody List<Schedule> schedules) {
+
+        authKeyService.generateNewHeaderKey();
 
         String clientId = schedules.get(0).getClientIp();
         if (Objects.nonNull(scheduleService.findNextByIp(clientId))) {
@@ -48,18 +59,10 @@ public class InputController {
             return new ResponseEntity<>(logMessage, HttpStatus.ACCEPTED);
         }
 
-        for (Schedule schedule : schedules) {
-            if (Objects.isNull(schedule.getId()))
-                schedule.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
-            for (TimeFrame timeFrame : schedule.getTimeFrames()) {
-                if (Objects.isNull(timeFrame.getId())) {
-                    timeFrame.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
-                }
-            }
-        }
+        provideIds(schedules);
 
         try {
-            validateSchedules(schedules);
+            validatorService.validateSchedules(schedules);
         } catch (ValidationException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
@@ -120,63 +123,15 @@ public class InputController {
         return provideSchedules(schedules);
     }
 
-    private void validateSchedules(List<Schedule> schedules) throws ValidationException {
+    private void provideIds(List<Schedule> schedules) {
         for (Schedule schedule : schedules) {
-            validateSchedule(schedule);
-        }
-    }
-
-    private void validateSchedule(Schedule schedule) throws ValidationException {
-        for (TimeFrame timeFrame : schedule.getTimeFrames()) {
-            validateTimeframe(timeFrame);
-        }
-
-        checkTimeFramesForIntersects(schedule.getTimeFrames());
-        checkTimeframesOrder(schedule.getTimeFrames());
-    }
-
-    private void validateTimeframe(TimeFrame timeFrame) throws ValidationException {
-
-        if (timeFrame.getStartTime().isBefore(LocalDateTime.now())) {
-            String errorMessage = String.format("Timeframe %s has start before current time. " +
-                    "It is incorrect", timeFrame);
-            log.error(errorMessage);
-            throw new ValidationException(errorMessage);
-        }
-
-        if (timeFrame.getStartTime().isAfter(timeFrame.getEndTime())){
-            String errorMessage = String.format(
-                    "Schedule is incorrect. Timeframe start must be before timeframe end. Got: %s", timeFrame);
-            log.error(errorMessage);
-            throw new ValidationException(errorMessage);
-        }
-    }
-
-    private void checkTimeFramesForIntersects(List<TimeFrame> timeFrames) throws ValidationException {
-        for (int i = 0; i < timeFrames.size()-1; ++i) {
-            for (int j = 1; j < timeFrames.size(); ++j) {
-                if (timeFrames.get(i).isIntersectsWith(timeFrames.get(j))) {
-                    String errorMessage = String.format("Timeframes %s and %s intersects",
-                            timeFrames.get(i),
-                            timeFrames.get(j));
-                    log.error(errorMessage);
-                    throw new ValidationException(errorMessage);
+            if (Objects.isNull(schedule.getId()))
+                schedule.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
+            for (TimeFrame timeFrame : schedule.getTimeFrames()) {
+                if (Objects.isNull(timeFrame.getId())) {
+                    timeFrame.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
                 }
             }
         }
     }
-
-    private void checkTimeframesOrder(List<TimeFrame> timeFrames) throws ValidationException {
-        for (int i = 0; i < timeFrames.size() - 1; ++i) {
-            LocalDateTime firstTimeframeStartTime = timeFrames.get(i).getStartTime();
-            LocalDateTime secondTimeframeStartTime = timeFrames.get(i+1).getStartTime();
-            if (secondTimeframeStartTime.isBefore(firstTimeframeStartTime)) {
-                String errorMessage = String.format("Timeframes must be ordered. " +
-                        "Timeframe %s must be after and %s", secondTimeframeStartTime, firstTimeframeStartTime);
-                log.error(errorMessage);
-                throw new ValidationException(errorMessage);
-            }
-        }
-    }
-
 }

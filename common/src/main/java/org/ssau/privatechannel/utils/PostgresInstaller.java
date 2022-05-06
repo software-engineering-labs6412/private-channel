@@ -14,17 +14,11 @@ public class PostgresInstaller {
 
     private static final String DB_INSTALLATION_JAR_PATH = "installation/db_installation-1.0.jar";
     private static final String SETTINGS_FILE_PATH = "installation/default_settings.json";
-    private static final String DEFAULT_INSTANCE_NAME = "private_channel";
     private static final String DEFAULT_USERNAME = "postgres";
     private static final String DEFAULT_PASSWORD = "postgres";
     private static final String DEFAULT_DB_NAME = "private_channel";
-    private static final String DEFAULT_PORT = "7433";
     private static final Integer MAX_WAIT_TIME_SECONDS = 600;
     private static final Integer DEFAULT_DELAY_IN_SECONDS = 10;
-
-    public static void run() throws IOException, InterruptedException {
-        run(DEFAULT_INSTANCE_NAME, DEFAULT_PORT);
-    }
 
     public static void run(String containerName, String port) throws IOException, InterruptedException {
 
@@ -67,23 +61,8 @@ public class PostgresInstaller {
         log.info("Container \"{}\" created and started", containerName);
     }
 
-    public static void run(ContainerSettings settings) throws IOException {
-        createSettingsFile(settings);
-        String command = String.format(Commands.START_CONTAINER_INSTALLATION,
-                DB_INSTALLATION_JAR_PATH,
-                SETTINGS_FILE_PATH);
-        CommandRunner.run(command);
-    }
-
     private static void createSettingsFile(String dbName, String port) throws IOException {
         ContainerSettings settings = getDefaultSettings(dbName, port);
-        String settingsJson = new ObjectMapper().writeValueAsString(settings);
-        FileWriter writer = new FileWriter(SETTINGS_FILE_PATH);
-        writer.write(settingsJson);
-        writer.close();
-    }
-
-    private static void createSettingsFile(ContainerSettings settings) throws IOException {
         String settingsJson = new ObjectMapper().writeValueAsString(settings);
         FileWriter writer = new FileWriter(SETTINGS_FILE_PATH);
         writer.write(settingsJson);

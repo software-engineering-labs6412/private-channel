@@ -14,11 +14,12 @@ import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.service.ConfidentialInfoService;
 import org.ssau.privatechannel.service.IpService;
 import org.ssau.privatechannel.service.NetworkAdapterService;
+import org.ssau.privatechannel.utils.AESUtil;
 import org.ssau.privatechannel.utils.KeyHolder;
 import org.ssau.privatechannel.utils.SystemContext;
 import org.ssau.privatechannel.utils.ThreadsHolder;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +40,8 @@ public class StartDataTransferringTask extends TimerTask {
 
     private static final Integer WAIT_DELAY = 10;
     private static final Integer WAIT_TIMEOUT_SECONDS = 600;
+
+    private static final Integer DELAY_BETWEEN_BATCHES = 1;
 
     public StartDataTransferringTask(ConfidentialInfoService infoService,
                                      RestTemplate restTemplate,
@@ -62,7 +65,13 @@ public class StartDataTransferringTask extends TimerTask {
             log.info("Data transferring started between clients with ips {} and {}", senderIp, receiverIp);
             int currentWaitTime = 0;
             while (true) {
-                Collection<ConfidentialInfo> batch = infoService.nextBatch();
+                List<ConfidentialInfo> batch = infoService.nextBatch();
+                try {
+                    batch = AESUtil.encryptBatchInfo(batch, KeyHolder.getKey(), KeyHolder.getIv());
+                } catch (Exception e) {
+                    log.error("Error during data encryption", e);
+                    break;
+                }
 
                 if (batch.isEmpty()) {
 
@@ -98,18 +107,18 @@ public class StartDataTransferringTask extends TimerTask {
                     }
                     else
                         next.setReceiverIP(receiverIp);
-
                 }
 
                 String serverIp = SystemContext.getProperty(SystemProperties.SERVER_IP);
                 String serverAddress = SCHEMA + serverIp + SEND_DATA_ENDPOINT;
                 HttpHeaders headers = new HttpHeaders();
-                headers.add(Headers.KEY, KeyHolder.getKey());
+                headers.add(SystemProperties.HEADER_KEY, SystemContext.getProperty(SystemProperties.HEADER_KEY));
 
-                HttpEntity<Collection<ConfidentialInfo>> entity = new HttpEntity<>(batch, headers);
+                HttpEntity<List<ConfidentialInfo>> entity = new HttpEntity<>(batch, headers);
 
                 ResponseEntity<String> response;
                 try {
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(DELAY_BETWEEN_BATCHES));
                     response = restTemplate.postForEntity(serverAddress, entity, String.class);
                 }
                 catch (Throwable e) {
@@ -126,16 +135,7 @@ public class StartDataTransferringTask extends TimerTask {
         ThreadsHolder.addAndRunThread(THREAD_NAME, thread);
     }
 
-    public String getReceiverIp() {
-        return receiverIp;
-    }
-
     public void setReceiverIp(String receiverIp) {
         this.receiverIp = receiverIp;
     }
-
-    private static abstract class Headers {
-        public static final String KEY = "X-Request-Key";
-    }
-
 }

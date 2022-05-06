@@ -1,17 +1,31 @@
 package org.ssau.privatechannel.utils;
 
-public abstract class KeyHolder {
-    private static String key;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
-    public static synchronized String getKey() {
+public class KeyHolder {
+
+    private static SecretKey key;
+    private static IvParameterSpec iv;
+
+    public static SecretKey getKey() {
         return key;
     }
 
-    public static synchronized void holdKey(String newKey) {
-        key = newKey;
+    public static void setKey(SecretKey key) {
+        KeyHolder.key = key;
     }
 
-    public static synchronized void dropKey() {
-        key = null;
+    public static void setKey(byte[] key) {
+        KeyHolder.key = new SecretKeySpec(key, AESUtil.ALGORITHM);
+    }
+
+    public static IvParameterSpec getIv() {
+        return iv;
+    }
+
+    public static void setIv(IvParameterSpec iv) {
+        KeyHolder.iv = iv;
     }
 }

@@ -6,7 +6,6 @@ import org.ssau.privatechannel.constants.Parameters;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.repository.ConfidentialInfoRepository;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -23,27 +22,16 @@ public class ConfidentialInfoService {
         this.infoRepository = infoRepository;
     }
 
-    public Collection<ConfidentialInfo> findAll() {
-        return infoRepository.findAll();
-    }
-
-    public Collection<ConfidentialInfo> findAllByIds(List<Long> ids) {
+    public List<ConfidentialInfo> findAllByIds(List<Long> ids) {
         return infoRepository.findAllByIds(ids);
     }
 
-    public Collection<ConfidentialInfo> nextBatch() {
+    public List<ConfidentialInfo> nextBatch() {
         return infoRepository.nextBatch();
     }
 
-    public void deleteBatch(Collection<ConfidentialInfo> batch) {
+    public void deleteBatch(List<ConfidentialInfo> batch) {
         infoRepository.deleteBatch(batch);
-    }
-
-    public void add(ConfidentialInfo info) {
-        if (Objects.isNull(info.getId())) {
-            info.setId(Math.abs(RANDOMIZER.nextLong()) % Parameters.MAX_ID);
-        }
-        infoRepository.add(info);
     }
 
     public void addAll(List<ConfidentialInfo> info) {
@@ -53,10 +41,6 @@ public class ConfidentialInfoService {
             }
         }
         infoRepository.addAll(info);
-    }
-
-    public void delete(ConfidentialInfo info) {
-        infoRepository.delete(info);
     }
 
     public int getInfoCount() {
