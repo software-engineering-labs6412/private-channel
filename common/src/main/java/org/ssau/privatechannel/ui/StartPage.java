@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class StartPage {
 
-    public static final String KEY_FILE_NAME = "C:\\Users\\soboi\\Desktop\\secret_key.pckey";
+    public static final String KEY_FILE_NAME = "secret_key.pckey";
 
     public static void show() throws IOException {
 

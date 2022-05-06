@@ -48,7 +48,4 @@ class ConfidentialDataControllerTest {
         Assertions.assertEquals(responseEntity.getStatusCode(), HttpStatus.EXPECTATION_FAILED,
                 "Expected: " + HttpStatus.EXPECTATION_FAILED + ", actual: " + responseEntity.getStatusCode());
     }
-
-
-
 }

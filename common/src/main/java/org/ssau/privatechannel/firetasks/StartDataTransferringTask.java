@@ -135,10 +135,6 @@ public class StartDataTransferringTask extends TimerTask {
         ThreadsHolder.addAndRunThread(THREAD_NAME, thread);
     }
 
-    public String getReceiverIp() {
-        return receiverIp;
-    }
-
     public void setReceiverIp(String receiverIp) {
         this.receiverIp = receiverIp;
     }

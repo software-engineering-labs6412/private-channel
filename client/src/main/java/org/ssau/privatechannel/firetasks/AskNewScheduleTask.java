@@ -52,7 +52,7 @@ public class AskNewScheduleTask extends TimerTask  {
         if (!scheduleResponseEntity.getStatusCode().is2xxSuccessful()) {
             log.error("Could not get schedule from server. Server returned {}",
                     scheduleResponseEntity.getStatusCode());
-            System.exit(0); // TODO: dmso добавить попытки взять расписание
+            System.exit(0);
         }
 
         String urlProvideScheduleToClient = UrlSchemas.HTTP +
@@ -74,7 +74,7 @@ public class AskNewScheduleTask extends TimerTask  {
         if (!response.getStatusCode().is2xxSuccessful()) {
             log.error("Could not send new schedule to client. Client returned {}",
                     scheduleResponseEntity.getStatusCode());
-            System.exit(0); // TODO: dmso добавить попытки
+            System.exit(0);
         }
 
         EndDataTransferringTask endDataTransferringTask = new EndDataTransferringTask(
