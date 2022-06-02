@@ -6,17 +6,16 @@ import org.ssau.privatechannel.constants.SystemProperties;
 import org.ssau.privatechannel.exception.BadAlgorythmLengthException;
 import org.ssau.privatechannel.exception.ValidationException;
 import org.ssau.privatechannel.service.IpService;
-import org.ssau.privatechannel.utils.AESUtil;
-import org.ssau.privatechannel.utils.ClientsHolder;
-import org.ssau.privatechannel.utils.KeyHolder;
-import org.ssau.privatechannel.utils.SystemContext;
+import org.ssau.privatechannel.utils.*;
 
+import javax.crypto.SecretKey;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -217,9 +216,9 @@ public class StartPage {
                 SystemContext.setProperty(SystemProperties.RECEIVER_IP, receiverIpAddress);
 
                 if (!keyFilePath.getText().isEmpty()) {
-                    byte[] key;
+                    SecretKey key;
                     try {
-                        key = Files.readAllBytes(Paths.get(keyFilePath.getText()));
+                        key = KeySaver.readKey(keyFilePath.getText());
                         KeyHolder.setKey(key);
                         KeyHolder.setIv(AESUtil.generateIv());
                         log.debug("Secret key picked up from file");
@@ -232,7 +231,7 @@ public class StartPage {
                         KeyHolder.setKey(AESUtil.generateKey(DefaultParams.SECRET_KEY_LENGTH));
                         KeyHolder.setIv(AESUtil.generateIv());
 
-                        writeToFile(KEY_FILE_NAME, KeyHolder.getKey().getEncoded());
+                        KeySaver.writeToFile(KEY_FILE_NAME, KeyHolder.getKey());
                         log.info("New secret key generated and saved to file {}", KEY_FILE_NAME);
                     } catch (NoSuchAlgorithmException | BadAlgorythmLengthException | IOException e) {
                         log.error("Error during secret key generation", e);
@@ -272,7 +271,7 @@ public class StartPage {
             SystemContext.setProperty(SystemProperties.DB_PORT, postgresPort);
             SystemContext.setProperty(SystemProperties.MAIN_DB, postgresDb);
 
-            SystemContext.setProperty(SystemProperties.NETWORK, network.split("=")[0].split(" ")[1]);
+            SystemContext.setProperty(SystemProperties.NETWORK, network.split("=")[0]);
 
             Matcher matcher = Pattern.compile("[0-9]+.[0-9]+.[0-9]+.[0-9]+").matcher(network);
             boolean isNetworkProvided = matcher.find();
@@ -417,9 +416,5 @@ public class StartPage {
     private static abstract class Instances {
         public static final String CLIENT = "Client";
         public static final String SERVER = "Server";
-    }
-
-    private static void writeToFile(String filename, byte[] array) throws IOException {
-        FileUtils.writeByteArrayToFile(new File(filename), array);
     }
 }

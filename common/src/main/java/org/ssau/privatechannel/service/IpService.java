@@ -28,7 +28,7 @@ public class IpService {
 
             boolean isInterfaceFound;
             if (resString.matches(adapterNamePattern.pattern()) && !resString.isEmpty()) {
-                Matcher matcher = Pattern.compile("[A-z0-9-() ]+").matcher(resString);
+                Matcher matcher = Pattern.compile("[A-z0-9-()_]+").matcher(resString);
                 isInterfaceFound = matcher.find();
 
                 if (isInterfaceFound && !matcher.group().equals(" ")) {

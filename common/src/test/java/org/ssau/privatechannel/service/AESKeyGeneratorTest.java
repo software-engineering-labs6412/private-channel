@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.ssau.privatechannel.exception.BadAlgorythmLengthException;
 import org.ssau.privatechannel.model.ConfidentialInfo;
 import org.ssau.privatechannel.utils.AESUtil;
+import org.ssau.privatechannel.utils.KeySaver;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
@@ -43,6 +44,29 @@ class AESKeyGeneratorTest {
         String cipherText = AESUtil.encrypt(input, key, ivParameterSpec);
         String plainText = AESUtil.decrypt(cipherText, key, ivParameterSpec);
         Assertions.assertEquals(input, plainText);
+    }
+
+    @Test
+    void testSaveAndLoadKey_thenEncryptAndDecrypt()
+            throws NoSuchAlgorithmException,
+            IllegalBlockSizeException,
+            InvalidKeyException,
+            BadPaddingException,
+            InvalidAlgorithmParameterException,
+            NoSuchPaddingException,
+            BadAlgorythmLengthException, IOException, ClassNotFoundException {
+        SecretKey key = AESUtil.generateKey(128);
+        KeySaver.writeToFile("test.pckey", key);
+        SecretKey secretKey = KeySaver.readKey("test.pckey");
+        IvParameterSpec ivParameterSpec = AESUtil.generateIv();
+        ConfidentialInfo info = ConfidentialInfo.builder()
+                .id(RANDOMIZER.nextLong())
+                .receiverIP(TEST_IP)
+                .data(generateRandomData())
+                .build();
+        SealedObject sealedObject = AESUtil.encryptObject(info, secretKey, ivParameterSpec);
+        ConfidentialInfo object = (ConfidentialInfo) AESUtil.decryptObject(sealedObject, secretKey, ivParameterSpec);
+        Assertions.assertSame(info, object);
     }
 
     @Test

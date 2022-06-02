@@ -18,7 +18,7 @@ public class KeyHolder {
     }
 
     public static void setKey(byte[] key) {
-        KeyHolder.key = new SecretKeySpec(key, AESUtil.ALGORITHM);
+        KeyHolder.key = new SecretKeySpec(key, "AES");
     }
 
     public static IvParameterSpec getIv() {

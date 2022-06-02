@@ -67,11 +67,14 @@ public class InputController {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
 
-        HttpEntity<Schedule> scheduleHttpEntity = new HttpEntity<>(schedules.get(0));
-
         List<String> allClients = ClientsHolder.getAllClients();
 
         for (String currentClient : allClients) {
+
+            List<Schedule> allSchedulesForCurrentUser = getSchedulesForClient(schedules, currentClient);
+            Schedule firstSchedule = allSchedulesForCurrentUser.get(0);
+            HttpEntity<Schedule> scheduleHttpEntity = new HttpEntity<>(firstSchedule);
+
             String fullUrl = UrlSchemas.HTTP + currentClient + Endpoints.API_V1_CLIENT + Endpoints.SCHEDULE;
             ResponseEntity<String> stringResponseEntity =
                     restTemplate.postForEntity(fullUrl, scheduleHttpEntity, String.class);
@@ -89,10 +92,10 @@ public class InputController {
                     return new ResponseEntity<>(
                             "Server configuration failure", HttpStatus.INTERNAL_SERVER_ERROR);
             }
-        }
 
-        schedules.remove(0);
-        scheduleService.addAll(schedules);
+            allSchedulesForCurrentUser.remove(0);
+            scheduleService.addAll(allSchedulesForCurrentUser);
+        }
 
         return new ResponseEntity<>("Success", HttpStatus.OK);
     }
@@ -133,5 +136,16 @@ public class InputController {
                 }
             }
         }
+    }
+
+    private List<Schedule> getSchedulesForClient(List<Schedule> schedules, String clientIp) {
+        List<Schedule> result = new ArrayList<>();
+        clientIp = clientIp.split(":")[0];
+        for (Schedule schedule : schedules) {
+            if (schedule.getClientIp().equals(clientIp)) {
+                result.add(schedule);
+            }
+        }
+        return result;
     }
 }
