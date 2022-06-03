@@ -9,6 +9,7 @@ import org.ssau.privatechannel.service.IpService;
 import org.ssau.privatechannel.utils.*;
 
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -29,6 +30,7 @@ import java.util.regex.Pattern;
 public class StartPage {
 
     public static final String KEY_FILE_NAME = "secret_key.pckey";
+    public static final String IV_FILE_NAME = "iv_parameter.pckey";
 
     public static void show() throws IOException {
 
@@ -217,10 +219,20 @@ public class StartPage {
 
                 if (!keyFilePath.getText().isEmpty()) {
                     SecretKey key;
+                    IvParameterSpec ivps;
                     try {
                         key = KeySaver.readKey(keyFilePath.getText());
+
+                        String[] pathParts = keyFilePath.getText().split("/");
+                        StringBuilder ivPath = new StringBuilder();
+                        for (int i = 0; i < pathParts.length - 1; ++i) {
+                            ivPath.append(pathParts[i]);
+                        }
+
+                        ivPath.append(IV_FILE_NAME);
+                        ivps = KeySaver.readIv(ivPath.toString());
                         KeyHolder.setKey(key);
-                        KeyHolder.setIv(AESUtil.generateIv());
+                        KeyHolder.setIv(ivps);
                         log.debug("Secret key picked up from file");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
@@ -232,6 +244,7 @@ public class StartPage {
                         KeyHolder.setIv(AESUtil.generateIv());
 
                         KeySaver.writeToFile(KEY_FILE_NAME, KeyHolder.getKey());
+                        KeySaver.writeToFileIv(IV_FILE_NAME, KeyHolder.getIv());
                         log.info("New secret key generated and saved to file {}", KEY_FILE_NAME);
                     } catch (NoSuchAlgorithmException | BadAlgorythmLengthException | IOException e) {
                         log.error("Error during secret key generation", e);
