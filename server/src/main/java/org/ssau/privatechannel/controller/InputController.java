@@ -72,6 +72,11 @@ public class InputController {
         for (String currentClient : allClients) {
 
             List<Schedule> allSchedulesForCurrentUser = getSchedulesForClient(schedules, currentClient);
+
+            if (allSchedulesForCurrentUser.isEmpty()) {
+                continue;
+            }
+
             Schedule firstSchedule = allSchedulesForCurrentUser.get(0);
             HttpEntity<Schedule> scheduleHttpEntity = new HttpEntity<>(firstSchedule);
 
